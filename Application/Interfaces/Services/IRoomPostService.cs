@@ -1,9 +1,10 @@
-﻿using Application.DTOs.RoomPosts;
+using Application.DTOs.RoomPosts;
 
 namespace Application.Interfaces.Services
 {
     public interface IRoomPostService
     {
+        Task<IEnumerable<RoomListViewModel>> GetAllRoomsAsync();
         Task<IEnumerable<RoomListViewModel>> GetMyRoomsAsync(string landlordId);
 
         // GET lookup data combined with viewmodels

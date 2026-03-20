@@ -8,10 +8,30 @@ namespace Application.Services
     public class RoomPostService : IRoomPostService
     {
         private readonly IRoomPostRepository _repository;
+        private readonly ICloudinaryService _cloudinaryService;
 
-        public RoomPostService(IRoomPostRepository repository)
+        public RoomPostService(IRoomPostRepository repository, ICloudinaryService cloudinaryService)
         {
             _repository = repository;
+            _cloudinaryService = cloudinaryService;
+        }
+
+        public async Task<IEnumerable<RoomListViewModel>> GetAllRoomsAsync()
+        {
+            var rooms = await _repository.GetAllActiveAsync();
+            return rooms.Select(r => new RoomListViewModel
+            {
+                Id = r.Id,
+                Title = r.Title,
+                BasePrice = r.BasePrice,
+                SurfaceArea = r.SurfaceArea,
+                Address = r.Floor?.Building?.Address ?? "Chưa cập nhật",
+                Status = r.Status,
+                CreatedAt = r.CreatedAt,
+                RoomNumber = r.RoomNumber,
+                RoomType = r.RoomType,
+                AmenityCount = r.RoomAmenities.Count
+            });
         }
 
         public async Task<IEnumerable<RoomListViewModel>> GetMyRoomsAsync(string landlordId)
@@ -69,7 +89,14 @@ namespace Application.Services
                 SelectedAmenityIds = room.RoomAmenities.Select(ra => ra.AmenityId).ToList(),
 
                 AvailableFloors = floors.ToList(),
-                AvailableAmenities = amenities.ToList()
+                AvailableAmenities = amenities.ToList(),
+                
+                ExistingPhotos = room.RoomPhotos.OrderBy(p => p.DisplayOrder).Select(p => new RoomPhotoViewModel
+                {
+                    Id = p.Id,
+                    Url = p.Url,
+                    IsMain = p.IsMain
+                }).ToList()
             };
         }
 
@@ -81,17 +108,16 @@ namespace Application.Services
                 throw new KeyNotFoundException("Room not found");
             }
 
-            // Simple parse of JSON array for photos. Since we don't have JSON library ready mapped, 
-            // string.IsNullOrWhiteSpace check and split
-            var photos = new List<string>();
-            if (!string.IsNullOrWhiteSpace(room.Photos))
+            var photos = room.RoomPhotos.OrderBy(p => p.DisplayOrder).Select(p => new RoomPhotoViewModel
             {
-                // Just for testing/fallback, assuming it could be comma-separated or json
-                photos = room.Photos.Replace("[", "").Replace("]", "").Replace("\"", "").Split(',', StringSplitOptions.RemoveEmptyEntries).ToList();
-            }
+                Id = p.Id,
+                Url = p.Url,
+                IsMain = p.IsMain
+            }).ToList();
+
             if (!photos.Any())
             {
-                photos.Add("https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?w=800&q=80");
+                photos.Add(new RoomPhotoViewModel { Id = 0, Url = "https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?w=800&q=80", IsMain = true });
             }
 
             var address = room.Floor?.Building?.Address ?? "Chưa cập nhật";
@@ -157,21 +183,81 @@ namespace Application.Services
                 MaxCapacity = model.MaxCapacity,
                 Description = model.Description,
                 IsFurnished = model.IsFurnished,
-                FloorId = model.FloorId,
                 Status = model.Status,
                 CreatedAt = DateTime.UtcNow
             };
 
+            // Handle New Building/Floor creation
+            if (model.IsNewBuilding)
+            {
+                var newBuilding = new Building
+                {
+                    OwnerId = landlordId,
+                    Name = model.NewBuildingName ?? "Toà nhà mới",
+                    Address = model.NewBuildingAddress ?? "",
+                    City = model.NewBuildingCity ?? "",
+                    District = model.NewBuildingDistrict ?? "",
+                    Ward = model.NewBuildingWard ?? "",
+                    CreatedAt = DateTime.UtcNow
+                };
+
+                var newFloor = new Floor
+                {
+                    Building = newBuilding,
+                    FloorNumber = model.NewFloorNumber ?? 1,
+                    CreatedAt = DateTime.UtcNow
+                };
+
+                room.Floor = newFloor;
+            }
+            else
+            {
+                room.FloorId = model.FloorId;
+            }
+
+            // Map RoomAmenities — explicitly set both keys so composite PK is guaranteed
             if (model.SelectedAmenityIds != null && model.SelectedAmenityIds.Any())
             {
                 foreach (var amenityId in model.SelectedAmenityIds)
                 {
-                    room.RoomAmenities.Add(new RoomAmenity { AmenityId = amenityId });
+                    room.RoomAmenities.Add(new RoomAmenity
+                    {
+                        AmenityId = amenityId
+                        // RoomId will be set by EF after insert, but we keep it clean here
+                    });
                 }
             }
 
+            // Upload photos to Cloudinary and map RoomPhotos
+            if (model.Photos != null && model.Photos.Any())
+            {
+                int order = 0;
+                foreach (var file in model.Photos)
+                {
+                    // Skip empty/invalid files
+                    if (file == null || file.Length == 0) continue;
+
+                    var uploadResult = await _cloudinaryService.UploadImageAsync(file);
+                    if (!string.IsNullOrEmpty(uploadResult.Url))
+                    {
+                        room.RoomPhotos.Add(new RoomPhoto
+                        {
+                            Url = uploadResult.Url,
+                            PublicId = uploadResult.PublicId ?? string.Empty,
+                            IsMain = order == 0,      // First photo is the main photo
+                            DisplayOrder = order,
+                            UploadedAt = DateTime.UtcNow
+                        });
+                        order++;
+                    }
+                }
+            }
+
+            // Persist Room + related RoomAmenities + RoomPhotos in one SaveChanges call
             await _repository.AddAsync(room);
         }
+
+
 
         public async Task UpdateRoomAsync(EditRoomViewModel model, string currentUserId)
         {
@@ -205,6 +291,39 @@ namespace Application.Services
                 }
             }
 
+            // Remove deleted photos
+            if (model.DeletePhotoIds != null && model.DeletePhotoIds.Any())
+            {
+                var photosToDelete = room.RoomPhotos.Where(p => model.DeletePhotoIds.Contains(p.Id)).ToList();
+                foreach (var photo in photosToDelete)
+                {
+                    await _cloudinaryService.DeleteImageAsync(photo.PublicId);
+                    room.RoomPhotos.Remove(photo);
+                }
+            }
+
+            // Upload new photos
+            if (model.NewPhotos != null && model.NewPhotos.Any())
+            {
+                int order = room.RoomPhotos.Any() ? room.RoomPhotos.Max(p => p.DisplayOrder) + 1 : 0;
+                foreach (var file in model.NewPhotos)
+                {
+                    var uploadResult = await _cloudinaryService.UploadImageAsync(file);
+                    if (!string.IsNullOrEmpty(uploadResult.Url))
+                    {
+                        room.RoomPhotos.Add(new RoomPhoto
+                        {
+                            Url = uploadResult.Url,
+                            PublicId = uploadResult.PublicId,
+                            IsMain = !room.RoomPhotos.Any(), // If no photos exist, new one is main
+                            DisplayOrder = order,
+                            UploadedAt = DateTime.UtcNow
+                        });
+                        order++;
+                    }
+                }
+            }
+
             await _repository.UpdateAsync(room);
         }
 
@@ -217,6 +336,15 @@ namespace Application.Services
 
             if (room.LandlordId != currentUserId)
                 throw new UnauthorizedAccessException("You do not have permission to delete this room.");
+
+            // Delete photos from Cloudinary
+            if (room.RoomPhotos != null && room.RoomPhotos.Any())
+            {
+                foreach (var photo in room.RoomPhotos)
+                {
+                    await _cloudinaryService.DeleteImageAsync(photo.PublicId);
+                }
+            }
 
             await _repository.DeleteAsync(room);
         }
