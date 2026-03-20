@@ -49,6 +49,7 @@ namespace Infrastructure
             // Application Services & Repositories
             services.AddScoped<Application.Interfaces.Repositories.IRoomPostRepository, Infrastructure.Repositories.RoomPostRepository>();
             services.AddScoped<Application.Interfaces.Services.IRoomPostService, Application.Services.RoomPostService>();
+            services.AddScoped<Application.Interfaces.Services.ICloudinaryService, Infrastructure.Services.CloudinaryService>();
 
             // External OAuth Providers
             services.AddAuthentication()

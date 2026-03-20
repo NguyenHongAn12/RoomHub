@@ -1,9 +1,10 @@
-﻿using Domain.Entities;
+using Domain.Entities;
 
 namespace Application.Interfaces.Repositories
 {
     public interface IRoomPostRepository
     {
+        Task<IEnumerable<Room>> GetAllActiveAsync();
         Task<IEnumerable<Room>> GetByLandlordIdAsync(string landlordId);
         Task<Room?> GetByIdAsync(int id);
         Task AddAsync(Room room);

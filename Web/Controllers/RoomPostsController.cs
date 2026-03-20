@@ -6,7 +6,7 @@ using System.Security.Claims;
 
 namespace Web.Controllers
 {
-    //[Authorize(Roles = "PropertyOwner")]
+    [Authorize(Roles = "PropertyOwner")]
     public class RoomPostsController : Controller
     {
         private readonly IRoomPostService _roomPostService;
@@ -18,11 +18,18 @@ namespace Web.Controllers
 
         private string GetUserId()
         {
-            //return User.FindFirstValue(ClaimTypes.NameIdentifier) ?? throw new UnauthorizedAccessException();
-            return "test-user-id-123";
+            return User.FindFirstValue(ClaimTypes.NameIdentifier) ?? throw new UnauthorizedAccessException();
+            //return "test-user-id-123";
         }
 
+        [AllowAnonymous]
         public async Task<IActionResult> Index()
+        {
+            var rooms = await _roomPostService.GetAllRoomsAsync();
+            return View(rooms);
+        }
+
+        public async Task<IActionResult> MyPosts()
         {
             var userId = GetUserId();
             var rooms = await _roomPostService.GetMyRoomsAsync(userId);
@@ -30,6 +37,7 @@ namespace Web.Controllers
         }
 
         [HttpGet]
+        [AllowAnonymous]
         public async Task<IActionResult> Details(int id)
         {
             try
@@ -57,6 +65,11 @@ namespace Web.Controllers
         {
             var userId = GetUserId();
             
+            if (model.IsNewBuilding)
+            {
+                ModelState.Remove(nameof(model.FloorId));
+            }
+
             if (!ModelState.IsValid)
             {
                 var viewModel = await _roomPostService.GetCreateViewModelAsync(userId);

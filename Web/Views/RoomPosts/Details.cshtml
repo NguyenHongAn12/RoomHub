@@ -41,23 +41,24 @@
         <div class="col-span-12 lg:col-span-8 space-y-6">
             <div class="bg-white dark:bg-slate-900 rounded-xl overflow-hidden shadow-sm border border-slate-200 dark:border-slate-800">
                 <div class="relative group aspect-video bg-black flex items-center justify-center">
-                    <img alt="Main property view" class="max-h-full object-contain" src="@(Model.Photos.FirstOrDefault() ?? "https://placeholder.com/800x600")"/>
-                    <button class="absolute left-4 top-1/2 -translate-y-1/2 bg-white/20 hover:bg-white/40 backdrop-blur-md text-white p-2 rounded-full transition-all opacity-0 group-hover:opacity-100">
+                    <img id="mainImage" alt="Main property view" class="max-h-full object-contain" src="@(Model.Photos.FirstOrDefault()?.Url ?? "https://placeholder.com/800x600")"/>
+                    <button class="absolute left-4 top-1/2 -translate-y-1/2 bg-white/20 hover:bg-white/40 backdrop-blur-md text-white p-2 rounded-full transition-all opacity-0 group-hover:opacity-100" onclick="prevImage()">
                         <span class="material-icons-outlined">chevron_left</span>
                     </button>
-                    <button class="absolute right-4 top-1/2 -translate-y-1/2 bg-white/20 hover:bg-white/40 backdrop-blur-md text-white p-2 rounded-full transition-all opacity-0 group-hover:opacity-100">
+                    <button class="absolute right-4 top-1/2 -translate-y-1/2 bg-white/20 hover:bg-white/40 backdrop-blur-md text-white p-2 rounded-full transition-all opacity-0 group-hover:opacity-100" onclick="nextImage()">
                         <span class="material-icons-outlined">chevron_right</span>
                     </button>
                     <div class="absolute bottom-4 right-4 bg-black/60 text-white px-3 py-1 rounded-full text-xs backdrop-blur-sm">
-                        1 / @Math.Max(1, Model.Photos.Count)
+                        <span id="currentImageIndex">1</span> / @Math.Max(1, Model.Photos.Count)
                     </div>
                 </div>
-                <div class="flex gap-2 p-3 overflow-x-auto hide-scrollbar">
-                    @foreach (var photoUrl in Model.Photos)
+                <div class="flex gap-2 p-3 overflow-x-auto hide-scrollbar" id="thumbnailContainer">
+                    @for (int i = 0; i < Model.Photos.Count; i++)
                     {
-                        var isFirst = photoUrl == Model.Photos.First();
-                        <div class="w-20 h-20 shrink-0 rounded-lg overflow-hidden @(isFirst ? "border-2 border-primary" : "grayscale hover:grayscale-0 transition-all cursor-pointer")">
-                            <img alt="Thumb" class="w-full h-full object-cover" src="@photoUrl"/>
+                        var photo = Model.Photos[i];
+                        var isFirst = i == 0;
+                        <div class="w-20 h-20 shrink-0 rounded-lg overflow-hidden @(isFirst ? "border-2 border-primary" : "grayscale hover:grayscale-0 transition-all cursor-pointer") thumbnail-item" onclick="setImage(@i, '@photo.Url')">
+                            <img alt="Thumb" class="w-full h-full object-cover" src="@photo.Url"/>
                         </div>
                     }
                 </div>
@@ -273,3 +274,44 @@
         </div>
     </div>
 </main>
+
+@section Scripts {
+    <script>
+        const photos = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.Photos.Select(p => p.Url)));
+        let currentIndex = 0;
+
+        function updateMainImage() {
+            if (photos.length === 0) return;
+            document.getElementById('mainImage').src = photos[currentIndex];
+            document.getElementById('currentImageIndex').innerText = currentIndex + 1;
+            
+            const thumbnails = document.querySelectorAll('.thumbnail-item');
+            thumbnails.forEach((thumb, idx) => {
+                if (idx === currentIndex) {
+                    thumb.classList.remove('grayscale', 'hover:grayscale-0', 'cursor-pointer');
+                    thumb.classList.add('border-2', 'border-primary');
+                } else {
+                    thumb.classList.add('grayscale', 'hover:grayscale-0', 'cursor-pointer');
+                    thumb.classList.remove('border-2', 'border-primary');
+                }
+            });
+        }
+
+        function setImage(index, url) {
+            currentIndex = index;
+            updateMainImage();
+        }
+
+        function prevImage() {
+            if (photos.length === 0) return;
+            currentIndex = (currentIndex === 0) ? photos.length - 1 : currentIndex - 1;
+            updateMainImage();
+        }
+
+        function nextImage() {
+            if (photos.length === 0) return;
+            currentIndex = (currentIndex === photos.length - 1) ? 0 : currentIndex + 1;
+            updateMainImage();
+        }
+    </script>
+}

@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html class="light" lang="en">
 <head>
     <meta charset="utf-8" />
@@ -24,14 +24,14 @@
             </div>
             <button class="hidden md:flex items-center gap-2 px-3 py-1.5 border border-primary/40 bg-orange-50/50 rounded-full text-sm font-medium whitespace-nowrap">
                 <span class="material-symbols-outlined text-primary text-xl">location_on</span>
-                <span>Whole Country</span>
+                <span>Toàn quốc</span>
                 <span class="material-symbols-outlined text-slate-400">expand_more</span>
             </button>
             <div class="flex-1 max-w-2xl relative group">
                 <div class="absolute inset-y-0 left-4 flex items-center pointer-events-none">
                     <span class="material-symbols-outlined text-slate-400">search</span>
                 </div>
-                <input class="w-full pl-12 pr-14 py-2.5 bg-slate-100 dark:bg-slate-800 border-none rounded-full focus:ring-2 focus:ring-primary text-sm" placeholder="Search for properties, locations..." type="text" />
+                <input class="w-full pl-12 pr-14 py-2.5 bg-slate-100 dark:bg-slate-800 border-none rounded-full focus:ring-2 focus:ring-primary text-sm" placeholder="Tìm kiếm phòng trọ, địa điểm..." type="text" />
                 <button class="absolute right-1.5 top-1/2 -translate-y-1/2 w-9 h-9 bg-primary text-white rounded-full flex items-center justify-center hover:opacity-90 transition">
                     <span class="material-symbols-outlined text-xl">search</span>
                 </button>
@@ -54,7 +54,7 @@
                 @if (User.Identity.IsAuthenticated && !User.IsInRole("Tenant"))
                 {
                     <a asp-controller="RoomPosts" asp-action="Create" class="bg-primary text-white px-5 py-2 rounded-lg text-sm font-bold shadow-sm hover:opacity-90 transition whitespace-nowrap inline-flex items-center justify-center">
-                        Post Ad
+                        Đăng tin
                     </a>
                 }
 
@@ -87,6 +87,13 @@
                                     <span class="material-symbols-outlined text-[20px]">person</span>
                                     Trang cá nhân
                                 </a>
+                                @if (!User.IsInRole("Tenant"))
+                                {
+                                    <a asp-controller="RoomPosts" asp-action="MyPosts" class="flex items-center gap-2 px-3 py-2 text-sm text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 hover:text-primary rounded-lg transition-colors">
+                                        <span class="material-symbols-outlined text-[20px]">list</span>
+                                        Quản lý bài đăng
+                                    </a>
+                                }
                                 <a href="#" class="flex items-center gap-2 px-3 py-2 text-sm text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 hover:text-primary rounded-lg transition-colors">
                                     <span class="material-symbols-outlined text-[20px]">dashboard</span>
                                     Quản lý hệ thống
@@ -109,7 +116,7 @@
                 {
                     @* Trạng thái chưa đăng nhập: Hiển thị nút Login *@
                     <a asp-controller="Auth" asp-action="Login" class="hidden sm:block text-sm font-semibold px-4 py-2 rounded-lg border border-slate-200 hover:bg-slate-50 transition cursor-pointer inline-flex items-center justify-center text-slate-700">
-                        Login
+                        Đăng nhập
                     </a>
                 }
             </div>
@@ -122,7 +129,7 @@
         <div class="max-w-7xl mx-auto px-4 pb-12">
             <div class="grid grid-cols-1 md:grid-cols-3 gap-12">
                 <div class="space-y-6">
-                    <h4 class="font-bold text-slate-900 dark:text-white">Download RoomHub App</h4>
+                    <h4 class="font-bold text-slate-900 dark:text-white">Tải ứng dụng RoomHub</h4>
                     <div class="flex gap-4 items-start">
                         <div class="bg-slate-100 p-2 rounded-lg">
                             <div class="w-24 h-24 bg-white border border-slate-200 flex items-center justify-center">
@@ -140,17 +147,17 @@
                     </div>
                 </div>
                 <div class="space-y-6">
-                    <h4 class="font-bold text-slate-900 dark:text-white">About RoomHub</h4>
+                    <h4 class="font-bold text-slate-900 dark:text-white">Về RoomHub</h4>
                     <nav class="flex flex-col gap-3">
-                        <a class="text-sm text-slate-500 hover:text-primary transition" href="#">Terms of Service</a>
-                        <a class="text-sm text-slate-500 hover:text-primary transition" href="#">Privacy Policy</a>
-                        <a class="text-sm text-slate-500 hover:text-primary transition" href="#">Dispute Resolution</a>
-                        <a class="text-sm text-slate-500 hover:text-primary transition" href="#">Help Center</a>
-                        <a class="text-sm text-slate-500 hover:text-primary transition" href="#">Careers</a>
+                        <a class="text-sm text-slate-500 hover:text-primary transition" href="#">Điều khoản sử dụng</a>
+                        <a class="text-sm text-slate-500 hover:text-primary transition" href="#">Chính sách bảo mật</a>
+                        <a class="text-sm text-slate-500 hover:text-primary transition" href="#">Giải quyết tranh chấp</a>
+                        <a class="text-sm text-slate-500 hover:text-primary transition" href="#">Trung tâm trợ giúp</a>
+                        <a class="text-sm text-slate-500 hover:text-primary transition" href="#">Tuyển dụng</a>
                     </nav>
                 </div>
                 <div class="space-y-6">
-                    <h4 class="font-bold text-slate-900 dark:text-white">Follow Us</h4>
+                    <h4 class="font-bold text-slate-900 dark:text-white">Theo dõi chúng tôi</h4>
                     <div class="flex gap-4">
                         <a class="w-10 h-10 bg-[#0077b5] text-white rounded-full flex items-center justify-center hover:opacity-80 transition" href="#">
                             <svg class="w-5 h-5 fill-current" viewBox="0 0 24 24"><path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z"></path></svg>
@@ -201,23 +208,23 @@
     <div class="lg:hidden fixed bottom-0 left-0 right-0 bg-white dark:bg-slate-900 border-t border-slate-200 dark:border-slate-800 h-16 flex items-center justify-around px-4 z-50">
         <button class="flex flex-col items-center gap-0.5 text-primary">
             <span class="material-symbols-outlined">home</span>
-            <span class="text-[10px] font-medium">Home</span>
+            <span class="text-[10px] font-medium">Trang chủ</span>
         </button>
         <button class="flex flex-col items-center gap-0.5 text-slate-400">
             <span class="material-symbols-outlined">search</span>
-            <span class="text-[10px] font-medium">Explore</span>
+            <span class="text-[10px] font-medium">Khám phá</span>
         </button>
         <button class="flex flex-col items-center gap-0.5 text-slate-400">
             <span class="material-symbols-outlined">add_circle</span>
-            <span class="text-[10px] font-medium">Post</span>
+            <span class="text-[10px] font-medium">Đăng tin</span>
         </button>
         <button class="flex flex-col items-center gap-0.5 text-slate-400">
             <span class="material-symbols-outlined">favorite</span>
-            <span class="text-[10px] font-medium">Saved</span>
+            <span class="text-[10px] font-medium">Đã lưu</span>
         </button>
         <button class="flex flex-col items-center gap-0.5 text-slate-400">
             <span class="material-symbols-outlined">account_circle</span>
-            <span class="text-[10px] font-medium">Profile</span>
+            <span class="text-[10px] font-medium">Cá nhân</span>
         </button>
     </div>
 
