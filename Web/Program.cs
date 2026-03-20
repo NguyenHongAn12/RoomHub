@@ -45,9 +45,6 @@ app.MapControllerRoute(
     name: "default",
     pattern: "{controller=RoomPosts}/{action=Index}/{id?}");
 
-
-app.Run();
-
 app.MapHub<Web.Hubs.ChatHub>("/chathub");
 
 app.Run();
