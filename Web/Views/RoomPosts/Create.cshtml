@@ -9,22 +9,22 @@
                     <span class="material-symbols-outlined text-3xl">add_home</span>
                 </div>
                 <div>
-                    <h1 class="text-2xl font-bold text-slate-900 dark:text-white">Create Room Post</h1>
-                    <p class="text-sm text-slate-500 dark:text-slate-400">Fill in the details below to publish a new room.</p>
+                    <h1 class="text-2xl font-bold text-slate-900 dark:text-white">Đăng tin phòng</h1>
+                    <p class="text-sm text-slate-500 dark:text-slate-400">Điền thông tin bên dưới để đăng tải phòng mới.</p>
                 </div>
             </div>
 
-            <form asp-action="Create" method="post" class="space-y-6">
+            <form asp-action="Create" method="post" enctype="multipart/form-data" class="space-y-6">
                 <div asp-validation-summary="ModelOnly" class="p-4 mb-4 text-sm text-red-800 rounded-lg bg-red-50 dark:bg-gray-800 dark:text-red-400"></div>
 
                 <!-- Basic Details -->
                 <div class="space-y-4">
-                    <h3 class="text-lg font-bold text-slate-800 dark:text-slate-200 border-b border-slate-100 dark:border-slate-700 pb-2">Basic Information</h3>
+                    <h3 class="text-lg font-bold text-slate-800 dark:text-slate-200 border-b border-slate-100 dark:border-slate-700 pb-2">Thông tin cơ bản</h3>
                     
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div class="md:col-span-2">
                             <label asp-for="Title" class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1"></label>
-                            <input asp-for="Title" class="w-full rounded-lg border-slate-300 dark:border-slate-700 dark:bg-slate-800 px-4 py-2.5 focus:ring-2 focus:ring-primary focus:border-primary transition" placeholder="e.g. Beautiful room with balcony" />
+                            <input asp-for="Title" class="w-full rounded-lg border-slate-300 dark:border-slate-700 dark:bg-slate-800 px-4 py-2.5 focus:ring-2 focus:ring-primary focus:border-primary transition" placeholder="VD: Phòng đẹp có ban công, gần trung tâm" />
                             <span asp-validation-for="Title" class="text-xs text-red-500 mt-1 block"></span>
                         </div>
 
@@ -34,20 +34,122 @@
                             <span asp-validation-for="RoomNumber" class="text-xs text-red-500 mt-1 block"></span>
                         </div>
 
-                        <div>
-                            <label asp-for="FloorId" class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1"></label>
-                            <select asp-for="FloorId" class="w-full rounded-lg border-slate-300 dark:border-slate-700 dark:bg-slate-800 px-4 py-2.5 focus:ring-2 focus:ring-primary focus:border-primary transition">
-                                <option value="">-- Select Floor --</option>
-                                @if(Model.AvailableFloors != null)
-                                {
-                                    foreach(var floor in Model.AvailableFloors)
-                                    {
-                                        <option value="@floor.Id">@floor.Building.Name - Floor @floor.FloorNumber</option>
-                                    }
-                                }
-                            </select>
-                            <span asp-validation-for="FloorId" class="text-xs text-red-500 mt-1 block"></span>
+                        @{
+                            var buildingGroups = Model.AvailableFloors?
+                                .GroupBy(f => f.Building)
+                                .ToList();
+                        }
+
+                        <div class="md:col-span-2">
+                            <label class="flex items-center cursor-pointer mb-2">
+                                <div class="relative">
+                                    <input type="checkbox" asp-for="IsNewBuilding" id="isNewBuildingToggle" class="sr-only peer">
+                                    <div class="w-11 h-6 bg-slate-300 peer-focus:outline-none rounded-full peer dark:bg-slate-600 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-slate-600 peer-checked:bg-primary"></div>
+                                </div>
+                                <span class="ml-3 text-sm font-bold text-slate-800 dark:text-slate-200">Thêm toà nhà mới?</span>
+                            </label>
                         </div>
+
+                        <!-- Existing Building Selection -->
+                        <div id="existingBuildingSection" class="md:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div class="md:col-span-2">
+                                <label class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1">Chọn toà nhà</label>
+                                <select id="buildingSelect" class="w-full rounded-lg border-slate-300 dark:border-slate-700 dark:bg-slate-800 px-4 py-2.5 focus:ring-2 focus:ring-primary focus:border-primary transition">
+                                    <option value="">-- Chọn toà nhà --</option>
+                                    @if (buildingGroups != null)
+                                    {
+                                        foreach (var group in buildingGroups)
+                                        {
+                                            <option value="@group.Key.Id">
+                                                @group.Key.Name — @group.Key.Address, @group.Key.Ward, @group.Key.District, @group.Key.City
+                                            </option>
+                                        }
+                                    }
+                                </select>
+                            </div>
+
+                            <div class="md:col-span-2 bg-slate-50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-700 rounded-xl px-5 py-4 hidden" id="buildingInfoCard">
+                                <div class="flex items-start gap-3">
+                                    <span class="material-symbols-outlined text-primary mt-0.5">apartment</span>
+                                    <div class="space-y-1 text-sm text-slate-700 dark:text-slate-300">
+                                        <p><span class="font-semibold">Toà nhà:</span> <span id="infoName"></span></p>
+                                        <p><span class="font-semibold">Địa chỉ:</span> <span id="infoAddress"></span></p>
+                                        <p><span class="font-semibold">Phường/Xã:</span> <span id="infoWard"></span></p>
+                                        <p><span class="font-semibold">Quận/Huyện:</span> <span id="infoDistrict"></span></p>
+                                        <p><span class="font-semibold">Thành phố/Tỉnh:</span> <span id="infoCity"></span></p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div>
+                                <label asp-for="FloorId" class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1"></label>
+                                <select asp-for="FloorId" id="floorSelect" class="w-full rounded-lg border-slate-300 dark:border-slate-700 dark:bg-slate-800 px-4 py-2.5 focus:ring-2 focus:ring-primary focus:border-primary transition">
+                                    <option value="">-- Chọn toà nhà trước --</option>
+                                    @if(Model.AvailableFloors != null)
+                                    {
+                                        foreach(var floor in Model.AvailableFloors)
+                                        {
+                                            <option value="@floor.Id" data-building="@floor.Building.Id"
+                                                    data-name="@floor.Building.Name"
+                                                    data-address="@floor.Building.Address"
+                                                    data-ward="@floor.Building.Ward"
+                                                    data-district="@floor.Building.District"
+                                                    data-city="@floor.Building.City"
+                                                    style="display:none">
+                                                Tầng @floor.FloorNumber
+                                            </option>
+                                        }
+                                    }
+                                </select>
+                                <span asp-validation-for="FloorId" class="text-xs text-red-500 mt-1 block"></span>
+                            </div>
+                        </div>
+
+                        <!-- New Building Fields (Hidden by default) -->
+                        <div id="newBuildingSection" class="md:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-6 hidden">
+                            <div class="md:col-span-2">
+                                <label asp-for="NewBuildingName" class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1"></label>
+                                <input asp-for="NewBuildingName" class="w-full rounded-lg border-slate-300 dark:border-slate-700 dark:bg-slate-800 px-4 py-2.5 focus:ring-2 focus:ring-primary focus:border-primary transition" placeholder="Tên toà nhà mới" />
+                                <span asp-validation-for="NewBuildingName" class="text-xs text-red-500 mt-1 block"></span>
+                            </div>
+
+                            <div class="md:col-span-2">
+                                <label asp-for="NewBuildingAddress" class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1"></label>
+                                <input asp-for="NewBuildingAddress" class="w-full rounded-lg border-slate-300 dark:border-slate-700 dark:bg-slate-800 px-4 py-2.5 focus:ring-2 focus:ring-primary focus:border-primary transition" placeholder="Số nhà, tên đường" />
+                                <span asp-validation-for="NewBuildingAddress" class="text-xs text-red-500 mt-1 block"></span>
+                            </div>
+
+                            <div>
+                                <label asp-for="NewBuildingCity" class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1"></label>
+                                <select asp-for="NewBuildingCity" id="citySelect" class="w-full rounded-lg border-slate-300 dark:border-slate-700 dark:bg-slate-800 px-4 py-2.5 focus:ring-2 focus:ring-primary focus:border-primary transition">
+                                    <option value="">Chọn Tỉnh/Thành phố</option>
+                                </select>
+                                <span asp-validation-for="NewBuildingCity" class="text-xs text-red-500 mt-1 block"></span>
+                            </div>
+
+                            <div>
+                                <label asp-for="NewBuildingDistrict" class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1"></label>
+                                <select asp-for="NewBuildingDistrict" id="districtSelect" class="w-full rounded-lg border-slate-300 dark:border-slate-700 dark:bg-slate-800 px-4 py-2.5 focus:ring-2 focus:ring-primary focus:border-primary transition">
+                                    <option value="">Chọn Quận/Huyện</option>
+                                </select>
+                                <span asp-validation-for="NewBuildingDistrict" class="text-xs text-red-500 mt-1 block"></span>
+                            </div>
+
+                            <div>
+                                <label asp-for="NewBuildingWard" class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1"></label>
+                                <select asp-for="NewBuildingWard" id="wardSelect" class="w-full rounded-lg border-slate-300 dark:border-slate-700 dark:bg-slate-800 px-4 py-2.5 focus:ring-2 focus:ring-primary focus:border-primary transition">
+                                    <option value="">Chọn Phường/Xã</option>
+                                </select>
+                                <span asp-validation-for="NewBuildingWard" class="text-xs text-red-500 mt-1 block"></span>
+                            </div>
+
+                            <div>
+                                <label asp-for="NewFloorNumber" class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1"></label>
+                                <input asp-for="NewFloorNumber" type="number" class="w-full rounded-lg border-slate-300 dark:border-slate-700 dark:bg-slate-800 px-4 py-2.5 focus:ring-2 focus:ring-primary focus:border-primary transition" />
+                                <span asp-validation-for="NewFloorNumber" class="text-xs text-red-500 mt-1 block"></span>
+                            </div>
+                        </div>
+
 
                         <div>
                             <label asp-for="RoomType" class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1"></label>
@@ -65,7 +167,7 @@
 
                 <!-- Pricing & Dimensions -->
                 <div class="space-y-4 pt-4">
-                    <h3 class="text-lg font-bold text-slate-800 dark:text-slate-200 border-b border-slate-100 dark:border-slate-700 pb-2">Pricing & Dimensions</h3>
+                    <h3 class="text-lg font-bold text-slate-800 dark:text-slate-200 border-b border-slate-100 dark:border-slate-700 pb-2">Giá & Diện tích</h3>
                     
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                         <div>
@@ -105,23 +207,34 @@
 
                 <!-- Description -->
                 <div class="space-y-4 pt-4">
-                    <h3 class="text-lg font-bold text-slate-800 dark:text-slate-200 border-b border-slate-100 dark:border-slate-700 pb-2">Description</h3>
+                    <h3 class="text-lg font-bold text-slate-800 dark:text-slate-200 border-b border-slate-100 dark:border-slate-700 pb-2">Mô tả</h3>
                     <div>
-                        <textarea asp-for="Description" rows="4" class="w-full rounded-lg border-slate-300 dark:border-slate-700 dark:bg-slate-800 px-4 py-2.5 focus:ring-2 focus:ring-primary focus:border-primary transition" placeholder="Describe the room details nicely..."></textarea>
+                        <textarea asp-for="Description" rows="4" class="w-full rounded-lg border-slate-300 dark:border-slate-700 dark:bg-slate-800 px-4 py-2.5 focus:ring-2 focus:ring-primary focus:border-primary transition" placeholder="Mô tả chi tiết về phòng..."></textarea>
                         <span asp-validation-for="Description" class="text-xs text-red-500 mt-1 block"></span>
+                    </div>
+                </div>
+
+                <!-- Photos -->
+                <div class="space-y-4 pt-4">
+                    <h3 class="text-lg font-bold text-slate-800 dark:text-slate-200 border-b border-slate-100 dark:border-slate-700 pb-2">Hình ảnh</h3>
+                    <div>
+                        <label asp-for="Photos" class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1">Tải lên hình ảnh phòng</label>
+                        <input type="file" asp-for="Photos" multiple accept="image/*" class="w-full rounded-lg border-slate-300 dark:border-slate-700 dark:bg-slate-800 px-4 py-2.5 focus:ring-2 focus:ring-primary focus:border-primary transition" />
+                        <span asp-validation-for="Photos" class="text-xs text-red-500 mt-1 block"></span>
+                        <p class="text-xs text-slate-500 mt-1">Bạn có thể chọn nhiều ảnh cùng lúc.</p>
                     </div>
                 </div>
 
                 <!-- Amenities -->
                 <div class="space-y-4 pt-4">
-                    <h3 class="text-lg font-bold text-slate-800 dark:text-slate-200 border-b border-slate-100 dark:border-slate-700 pb-2">Amenities & Features</h3>
+                    <h3 class="text-lg font-bold text-slate-800 dark:text-slate-200 border-b border-slate-100 dark:border-slate-700 pb-2">Tiện ích & Tính năng</h3>
                     <div class="bg-slate-50 dark:bg-slate-800/50 rounded-xl p-5 border border-slate-100 dark:border-slate-700">
                         <label class="flex items-center cursor-pointer mb-6 pb-4 border-b border-slate-200 dark:border-slate-700">
                             <div class="relative">
                                 <input type="checkbox" asp-for="IsFurnished" class="sr-only peer">
                                 <div class="w-11 h-6 bg-slate-300 peer-focus:outline-none rounded-full peer dark:bg-slate-600 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-slate-600 peer-checked:bg-primary"></div>
                             </div>
-                            <span class="ml-3 text-sm font-bold text-slate-800 dark:text-slate-200">Is Fully Furnished?</span>
+                            <span class="ml-3 text-sm font-bold text-slate-800 dark:text-slate-200">Đã có đủ nội thất?</span>
                         </label>
 
                         @if (Model.AvailableAmenities != null && Model.AvailableAmenities.Any())
@@ -150,16 +263,16 @@
                         }
                         else
                         {
-                            <div class="text-slate-500 text-sm italic">No additional amenities available to select.</div>
+                            <div class="text-slate-500 text-sm italic">Không có thêm tiện ích nào để chọn.</div>
                         }
                     </div>
                 </div>
 
                 <!-- Actions -->
                 <div class="flex items-center justify-end gap-3 pt-6 mt-6 border-t border-slate-100 dark:border-slate-800">
-                    <a asp-action="Index" class="px-6 py-2.5 rounded-lg border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 font-medium hover:bg-slate-50 dark:hover:bg-slate-800 transition">Cancel</a>
+                    <a asp-action="Index" class="px-6 py-2.5 rounded-lg border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 font-medium hover:bg-slate-50 dark:hover:bg-slate-800 transition">Hủy</a>
                     <button type="submit" class="px-6 py-2.5 rounded-lg bg-primary text-white font-bold hover:opacity-90 transition flex items-center gap-2 shadow-sm">
-                        Publish Post <span class="material-symbols-outlined text-[20px]">send</span>
+                        Đăng tin <span class="material-symbols-outlined text-[20px]">send</span>
                     </button>
                 </div>
             </form>
@@ -168,5 +281,127 @@
 
     @section Scripts {
         @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+        <script>
+            (function () {
+                const buildingSelect = document.getElementById('buildingSelect');
+                const floorSelect = document.getElementById('floorSelect');
+                const infoCard = document.getElementById('buildingInfoCard');
+                const allFloorOptions = Array.from(floorSelect.querySelectorAll('option[data-building]'));
+
+                // New Building Elements
+                const isNewBuildingToggle = document.getElementById('isNewBuildingToggle');
+                const existingBuildingSection = document.getElementById('existingBuildingSection');
+                const newBuildingSection = document.getElementById('newBuildingSection');
+
+                function toggleBuildingSections() {
+                    const isNew = isNewBuildingToggle.checked;
+                    if (isNew) {
+                        newBuildingSection.classList.remove('hidden');
+                        existingBuildingSection.classList.add('hidden');
+                    } else {
+                        newBuildingSection.classList.add('hidden');
+                        existingBuildingSection.classList.remove('hidden');
+                    }
+                }
+
+                isNewBuildingToggle.addEventListener('change', toggleBuildingSections);
+
+                function filterFloors(buildingId) {
+                    floorSelect.value = '';
+                    allFloorOptions.forEach(opt => {
+                        const show = !buildingId || opt.dataset.building === buildingId;
+                        opt.style.display = show ? '' : 'none';
+                        if (!show && opt.selected) opt.selected = false;
+                    });
+
+                    // Update placeholder option text
+                    const placeholder = floorSelect.querySelector('option[value=""]');
+                    if (placeholder) {
+                        placeholder.textContent = buildingId ? '-- Chọn tầng --' : '-- Chọn toà nhà trước --';
+                    }
+
+                    // Show / hide building info card
+                    if (buildingId) {
+                        const sample = allFloorOptions.find(o => o.dataset.building === buildingId);
+                        if (sample) {
+                            document.getElementById('infoName').textContent = sample.dataset.name;
+                            document.getElementById('infoAddress').textContent = sample.dataset.address;
+                            document.getElementById('infoWard').textContent = sample.dataset.ward;
+                            document.getElementById('infoDistrict').textContent = sample.dataset.district;
+                            document.getElementById('infoCity').textContent = sample.dataset.city;
+                        }
+                        infoCard.classList.remove('hidden');
+                    } else {
+                        infoCard.classList.add('hidden');
+                    }
+                }
+
+                buildingSelect.addEventListener('change', function () {
+                    filterFloors(this.value);
+                });
+
+                // Initial state
+                toggleBuildingSections();
+
+                // Restore state on page load (after validation error repost)
+                const selectedFloorVal = '@Model.FloorId';
+                if (selectedFloorVal && selectedFloorVal !== '0') {
+                    const selectedOpt = allFloorOptions.find(o => o.value === selectedFloorVal);
+                    if (selectedOpt) {
+                        const bId = selectedOpt.dataset.building;
+                        buildingSelect.value = bId;
+                        filterFloors(bId);
+                        floorSelect.value = selectedFloorVal;
+                    }
+                }
+                
+                // Load Vietnam Provinces API
+                const hostProvinceApi = "https://provinces.open-api.vn/api/";
+                const citySelect = document.getElementById("citySelect");
+                const districtSelect = document.getElementById("districtSelect");
+                const wardSelect = document.getElementById("wardSelect");
+
+                const renderData = (array, selectId, defaultText) => {
+                    let rows = `<option value="">${defaultText}</option>`;
+                    array.forEach(element => {
+                        rows += `<option value="${element.name}" data-code="${element.code}">${element.name}</option>`;
+                    });
+                    document.getElementById(selectId).innerHTML = rows;
+                }
+
+                if (citySelect) {
+                    fetch(hostProvinceApi + "?depth=1")
+                        .then(response => response.json())
+                        .then(data => renderData(data, "citySelect", "Chọn Tỉnh/Thành phố"));
+
+                    citySelect.addEventListener("change", () => {
+                        districtSelect.innerHTML = `<option value="">Chọn Quận/Huyện</option>`;
+                        wardSelect.innerHTML = `<option value="">Chọn Phường/Xã</option>`;
+                        const selectedOption = citySelect.options[citySelect.selectedIndex];
+                        if(selectedOption && selectedOption.value) {
+                            const code = selectedOption.getAttribute("data-code");
+                            if (code) {
+                                fetch(hostProvinceApi + "p/" + code + "?depth=2")
+                                    .then(response => response.json())
+                                    .then(data => renderData(data.districts, "districtSelect", "Chọn Quận/Huyện"));
+                            }
+                        }
+                    });
+
+                    districtSelect.addEventListener("change", () => {
+                        wardSelect.innerHTML = `<option value="">Chọn Phường/Xã</option>`;
+                        const selectedOption = districtSelect.options[districtSelect.selectedIndex];
+                        if(selectedOption && selectedOption.value) {
+                            const code = selectedOption.getAttribute("data-code");
+                            if (code) {
+                                fetch(hostProvinceApi + "d/" + code + "?depth=2")
+                                    .then(response => response.json())
+                                    .then(data => renderData(data.wards, "wardSelect", "Chọn Phường/Xã"));
+                            }
+                        }
+                    });
+                }
+            })();
+        </script>
     }
 
