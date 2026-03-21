@@ -1,0 +1,174 @@
+@model Application.DTOs.Profile.UpdateProfileDto
+@{
+    ViewData["Title"] = "Cập nhật hồ sơ";
+}
+
+<div class="max-w-[1200px] mx-auto px-4 py-8">
+    <div class="flex flex-col lg:flex-row gap-6">
+
+        
+        <div class="w-full lg:w-64 flex-shrink-0">
+            <partial name="_Sidebar" />
+        </div>
+
+        
+        <div class="flex-1 min-w-0">
+            <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700 overflow-hidden">
+
+                
+                <div class="px-6 py-5 border-b border-slate-100 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-800/50">
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 rounded-xl bg-primary/10 text-primary flex items-center justify-center">
+                            <span class="material-symbols-outlined">manage_accounts</span>
+                        </div>
+                        <div>
+                            <h1 class="text-lg font-bold text-slate-800 dark:text-white">Chỉnh sửa hồ sơ</h1>
+                            <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">Cập nhật thông tin cá nhân của bạn</p>
+                        </div>
+                    </div>
+                </div>
+
+                <form asp-action="Edit" method="post" enctype="multipart/form-data" class="p-6 sm:p-8 space-y-8">
+                    <input type="hidden" asp-for="Id" />
+                    <input type="hidden" asp-for="CurrentAvatarUrl" />
+                    <div asp-validation-summary="All" class="text-red-600 text-sm font-medium bg-red-50 dark:bg-red-900/20 border border-red-100 dark:border-red-800 p-4 rounded-xl"></div>
+
+                    
+                    <div class="flex flex-col sm:flex-row gap-6 items-center sm:items-start p-5 bg-slate-50 dark:bg-slate-700/30 rounded-xl border border-slate-200 dark:border-slate-600/50">
+                        <label for="NewAvatar" class="relative group cursor-pointer flex-shrink-0">
+                            <div class="w-28 h-28 rounded-2xl overflow-hidden border-2 border-slate-200 dark:border-slate-600 shadow-md">
+                                <img id="avatarPreviewImg"
+                                     src="@(string.IsNullOrEmpty(Model.CurrentAvatarUrl) || Model.CurrentAvatarUrl.Contains("default") ? "" : Model.CurrentAvatarUrl)"
+                                     alt=""
+                                     class="w-full h-full object-cover @(string.IsNullOrEmpty(Model.CurrentAvatarUrl) || Model.CurrentAvatarUrl.Contains("default") ? "hidden" : "")">
+                                <div id="avatarPlaceholder"
+                                     class="w-full h-full bg-gradient-to-br from-primary to-orange-400 flex items-center justify-center @(string.IsNullOrEmpty(Model.CurrentAvatarUrl) || Model.CurrentAvatarUrl.Contains("default") ? "" : "hidden")">
+                                    <span class="text-3xl font-black text-white">
+                                        @(string.IsNullOrEmpty(Model.FullName) ? "U" : Model.FullName.Substring(0, 1).ToUpper())
+                                    </span>
+                                </div>
+                            </div>
+                            <div class="absolute inset-0 bg-black/60 rounded-2xl flex flex-col items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                                <span class="material-symbols-outlined text-white text-[26px]">photo_camera</span>
+                                <span class="text-[10px] text-white font-bold mt-1 uppercase tracking-wide">Đổi ảnh</span>
+                            </div>
+                        </label>
+
+                        <div class="flex-1 space-y-2 text-center sm:text-left">
+                            <h3 class="font-bold text-slate-700 dark:text-slate-200">Ảnh đại diện</h3>
+                            <p class="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">Chọn ảnh rõ mặt, định dạng JPG / PNG / GIF. Dung lượng tối đa <strong>5 MB</strong>. Ảnh sẽ được hiển thị công khai trên hồ sơ.</p>
+                            <label for="NewAvatar"
+                                   class="inline-flex items-center gap-2 px-4 py-2 border border-slate-300 dark:border-slate-600 rounded-lg text-sm font-semibold text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-700 cursor-pointer transition mt-1">
+                                <span class="material-symbols-outlined text-[18px]">upload</span>
+                                Tải ảnh lên
+                            </label>
+                            <input type="file" name="NewAvatar" id="NewAvatar" class="hidden" accept="image/*" onchange="previewAvatar(event)">
+                        </div>
+                    </div>
+
+                    
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
+
+                        
+                        <div class="sm:col-span-2 space-y-1.5">
+                            <label class="block text-sm font-semibold text-slate-700 dark:text-slate-300">
+                                Họ và Tên <span class="text-red-500">*</span>
+                            </label>
+                            <div class="relative">
+                                <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-[20px] pointer-events-none">badge</span>
+                                <input asp-for="FullName"
+                                       class="w-full pl-10 pr-4 py-2.5 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-600 rounded-xl text-sm text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition"
+                                       placeholder="Nhập họ và tên đầy đủ...">
+                            </div>
+                            <span asp-validation-for="FullName" class="text-xs text-red-500 font-medium"></span>
+                        </div>
+
+                        
+                        <div class="space-y-1.5">
+                            <label class="block text-sm font-semibold text-slate-700 dark:text-slate-300">
+                                Số điện thoại <span class="text-red-500">*</span>
+                            </label>
+                            <div class="relative">
+                                <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-[20px] pointer-events-none">call</span>
+                                <input asp-for="PhoneNumber"
+                                       class="w-full pl-10 pr-4 py-2.5 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-600 rounded-xl text-sm text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition"
+                                       placeholder="Số điện thoại liên hệ...">
+                            </div>
+                            <span asp-validation-for="PhoneNumber" class="text-xs text-red-500 font-medium"></span>
+                        </div>
+
+                        
+                        <div class="space-y-1.5">
+                            <label class="block text-sm font-semibold text-slate-700 dark:text-slate-300">Ngày sinh</label>
+                            <div class="relative">
+                                <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-[20px] pointer-events-none">calendar_month</span>
+                                <input asp-for="DateOfBirth" type="date"
+                                       class="w-full pl-10 pr-4 py-2.5 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-600 rounded-xl text-sm text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition">
+                            </div>
+                        </div>
+
+                        
+                        <div class="space-y-1.5">
+                            <label class="block text-sm font-semibold text-slate-700 dark:text-slate-300">Giới tính</label>
+                            <div class="relative">
+                                <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-[20px] pointer-events-none">wc</span>
+                                <select asp-for="Gender"
+                                        class="w-full pl-10 pr-4 py-2.5 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-600 rounded-xl text-sm text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition appearance-none">
+                                    <option value="">-- Chọn giới tính --</option>
+                                    <option value="Male">Nam</option>
+                                    <option value="Female">Nữ</option>
+                                    <option value="Other">Khác</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        
+                        <div class="sm:col-span-2 space-y-1.5">
+                            <label class="block text-sm font-semibold text-slate-700 dark:text-slate-300">Địa chỉ</label>
+                            <div class="relative">
+                                <span class="material-symbols-outlined absolute left-3 top-3 text-slate-400 text-[20px] pointer-events-none">location_on</span>
+                                <textarea asp-for="Address" rows="2"
+                                          class="w-full pl-10 pr-4 py-2.5 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-600 rounded-xl text-sm text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition resize-none"
+                                          placeholder="Số nhà, tên đường, phường/xã, quận/huyện, tỉnh/thành phố..."></textarea>
+                            </div>
+                        </div>
+                    </div>
+
+                    
+                    <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 pt-6 border-t border-slate-100 dark:border-slate-700">
+                        <button type="submit"
+                                class="flex items-center justify-center gap-2 px-6 py-2.5 bg-primary text-white rounded-xl text-sm font-bold hover:opacity-90 active:scale-95 transition shadow-md shadow-primary/20">
+                            <span class="material-symbols-outlined text-[18px]">save</span>
+                            Lưu thay đổi
+                        </button>
+                        <a href="/Profile/Index"
+                           class="flex items-center justify-center gap-2 px-6 py-2.5 bg-white dark:bg-slate-700 border border-slate-300 dark:border-slate-600 text-slate-700 dark:text-slate-200 rounded-xl text-sm font-semibold hover:bg-slate-50 dark:hover:bg-slate-600 transition">
+                            <span class="material-symbols-outlined text-[18px]">arrow_back</span>
+                            Hủy bỏ
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        function previewAvatar(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = function (e) {
+                const img = document.getElementById('avatarPreviewImg');
+                const placeholder = document.getElementById('avatarPlaceholder');
+                img.src = e.target.result;
+                img.classList.remove('hidden');
+                placeholder.classList.add('hidden');
+            };
+            reader.readAsDataURL(file);
+        }
+    </script>
+}
