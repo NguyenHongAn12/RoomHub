@@ -10,10 +10,12 @@ namespace Web.Controllers
     public class RoomPostsController : Controller
     {
         private readonly IRoomPostService _roomPostService;
+        private readonly IReviewService _reviewService;
 
-        public RoomPostsController(IRoomPostService roomPostService)
+        public RoomPostsController(IRoomPostService roomPostService, IReviewService reviewService)
         {
             _roomPostService = roomPostService;
+            _reviewService = reviewService;
         }
 
         private string GetUserId()
@@ -43,6 +45,8 @@ namespace Web.Controllers
             try
             {
                 var viewModel = await _roomPostService.GetRoomDetailsAsync(id);
+                var reviews = await _reviewService.GetRootReviewsByRoomAsync(id);
+                viewModel.Reviews = reviews.ToList();
                 return View(viewModel);
             }
             catch (KeyNotFoundException)
