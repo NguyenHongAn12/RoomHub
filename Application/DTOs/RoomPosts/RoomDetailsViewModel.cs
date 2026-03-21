@@ -36,6 +36,9 @@ namespace Application.DTOs.RoomPosts
         public string? LandlordAvatarUrl { get; set; }
         public string? LandlordPhone { get; set; }
         public int LandlordJoinedYears { get; set; }
+
+        // Reviews / Comments
+        public List<Application.DTOs.Reviews.ReviewViewModel> Reviews { get; set; } = new();
     }
 
     public class AmenityViewModel
