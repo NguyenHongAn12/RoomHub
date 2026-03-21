@@ -4,6 +4,7 @@ using Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Infrastructure.Persistence.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260321145313_addToFavorites")]
+    partial class addToFavorites
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -208,8 +211,8 @@ namespace Infrastructure.Persistence.Migrations
                         {
                             Id = "test-user-id-123",
                             AccessFailedCount = 0,
-                            ConcurrencyStamp = "115ebf74-f8b7-4e9a-9796-b272d767816d",
-                            CreatedAt = new DateTime(2026, 3, 21, 14, 54, 36, 637, DateTimeKind.Utc).AddTicks(2812),
+                            ConcurrencyStamp = "f483b2cc-b54e-4ffd-8c21-b1b8c3c8d02f",
+                            CreatedAt = new DateTime(2026, 3, 21, 14, 53, 12, 998, DateTimeKind.Utc).AddTicks(7936),
                             Email = "owner@roomhub.com",
                             EmailConfirmed = true,
                             FullName = "Chủ Trọ Test",
@@ -222,7 +225,7 @@ namespace Infrastructure.Persistence.Migrations
                             PasswordHash = "AQAAAAEAACcQAAAAE...",
                             PhoneNumber = "0123456789",
                             PhoneNumberConfirmed = false,
-                            SecurityStamp = "e4c13468-864d-41f2-8c20-f414e77134c2",
+                            SecurityStamp = "91c114f7-8e83-440a-9fd3-c6290f24f317",
                             TwoFactorEnabled = false,
                             UserName = "owner_test"
                         });

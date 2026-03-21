@@ -1,0 +1,57 @@
+﻿@using System.Security.Claims
+@model IEnumerable<Application.DTOs.RoomPosts.RoomListViewModel>
+@{
+    ViewData["Title"] = "Phòng đã yêu thích";
+    var currentUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+}
+
+<main class="max-w-7xl mx-auto px-4 py-8">
+    <div class="flex items-center gap-3 mb-8">
+        <span class="material-symbols-outlined text-4xl text-red-500" style="font-variation-settings: 'FILL' 1;">favorite</span>
+        <h1 class="text-3xl font-bold text-slate-800 dark:text-white">Phòng bạn đã yêu thích</h1>
+    </div>
+
+    @if (Model != null && Model.Any())
+    {
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            @foreach (var item in Model)
+            {
+                <div class="bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-slate-100 overflow-hidden group hover:shadow-md transition">
+                    <div class="h-48 overflow-hidden relative">
+                        <img alt="@item.Title" class="w-full h-full object-cover group-hover:scale-105 transition duration-500" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAIyzXG4Y1l8UHabQUlbLLXu93616OZ2rWZdqfHk7YoN9koc7TX0kCZ2eSt0qfkD4UwHBBmwWH8XeJ2Kec8weBQ7f9rb-IRzo3NstQ9rP0YtaTy1t37SQod0n354EM5LOQV6-u4YddEjWcow5DzBU5oiUvSdB6QK-WcDauq_n3jOy3R41-yBMXB_vRiy--1vTdA12NsxepsZj1r2VC0bBxKIs3ROL5V8_1FxU2EzCuyRJGZ2SoFQjoduY4NhOvKhX3djUfBS7Oo6JY" />
+                        
+                        <button class="btn-toggle-favorite absolute top-2 right-2 z-10 p-2 rounded-full bg-white/80 backdrop-blur shadow hover:scale-110 transition flex items-center justify-center"
+                                data-room-id="@item.Id">
+                            <span class="material-symbols-outlined text-xl text-red-500" style="font-variation-settings: 'FILL' 1;">favorite</span>
+                        </button>
+                    </div>
+                    
+                    <div class="p-4">
+                        <h3 class="font-bold text-lg leading-snug hover:text-primary transition line-clamp-1 mb-2">
+                            <a asp-controller="RoomPosts" asp-action="Details" asp-route-id="@item.Id">@item.Title</a>
+                        </h3>
+                        <p class="text-red-600 font-bold text-xl mb-3">@item.BasePrice.ToString("C")</p>
+                        <div class="flex items-center gap-4 text-sm text-slate-500">
+                            <span class="flex items-center gap-1"><span class="material-symbols-outlined text-sm">straighten</span> @item.SurfaceArea m²</span>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+    else
+    {
+        <div class="bg-white dark:bg-slate-900 rounded-xl shadow-sm p-12 text-center border border-slate-100">
+            <span class="material-symbols-outlined text-6xl text-slate-300 mb-4">heart_broken</span>
+            <h3 class="text-xl font-bold text-slate-700 mb-2">Bạn chưa yêu thích phòng nào</h3>
+            <p class="text-slate-500 mb-6">Hãy lướt tìm những căn phòng ưng ý và thả tim để lưu lại nhé!</p>
+            <a asp-controller="RoomPosts" asp-action="Index" class="inline-flex items-center gap-2 bg-primary text-white px-6 py-3 rounded-lg font-bold shadow-sm hover:opacity-90 transition">
+                Khám phá ngay
+            </a>
+        </div>
+    }
+</main>
+
+@section Scripts {
+    <script src="~/js/favorite.js"></script>
+}
