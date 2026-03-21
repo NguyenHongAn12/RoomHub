@@ -1,4 +1,6 @@
-using Infrastructure;
+﻿using Infrastructure;
+using Application.Interfaces.Services;
+using Infrastructure.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -7,13 +9,23 @@ builder.Services.AddControllersWithViews();
 
 builder.Services.AddInfrastructure(builder.Configuration);
 
+
+// Application Services
+builder.Services.AddScoped<IAuthService, AuthService>();
+builder.Services.AddScoped<IEmailService, EmailService>();
+
+// bật Session để lưu OTP
+builder.Services.AddSession();
+builder.Services.AddMemoryCache();
+
+builder.Services.AddSignalR();
+
+
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Home/Error");
-    // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
     app.UseHsts();
 }
 
@@ -22,10 +34,18 @@ app.UseStaticFiles();
 
 app.UseRouting();
 
+// dùng session
+app.UseSession();
+
+// Identity
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllerRoute(
     name: "default",
-    pattern: "{controller=Home}/{action=Index}/{id?}");
+    pattern: "{controller=RoomPosts}/{action=Index}/{id?}");
+
+app.MapHub<Web.Hubs.ChatHub>("/chathub");
 
 app.Run();
+

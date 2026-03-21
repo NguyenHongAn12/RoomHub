@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity;
 //using Microsoft.Identity.Client;
 using System;
 using System.Collections.Generic;
@@ -25,6 +25,7 @@ namespace Domain.Entities
         public bool IsBanned { get; set; }
 
         // Navigation properties
+        public virtual ICollection<Room> OwnedRooms { get; set; } = new List<Room>();
         public virtual ICollection<RefreshToken> RefreshTokens { get; set; } = new List<RefreshToken>();
         public virtual ICollection<Building> Buildings { get; set; } = new List<Building>();
         public virtual TenantProfile? TenantProfile { get; set; }

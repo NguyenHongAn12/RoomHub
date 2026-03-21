@@ -1,0 +1,197 @@
+﻿@model List<Domain.Entities.Message>
+@{
+    ViewData["Title"] = "Chat - Chủ nhà";
+}
+
+<style>
+    .chat-scrollbar::-webkit-scrollbar {
+        width: 5px;
+    }
+
+    .chat-scrollbar::-webkit-scrollbar-track {
+        background: transparent;
+    }
+
+    .chat-scrollbar::-webkit-scrollbar-thumb {
+        background: #e5e7eb;
+        border-radius: 10px;
+    }
+
+    /* Theme Xanh Blue cho Owner để phân biệt với Tenant */
+    .bg-theme {
+        background-color: #0d6efd !important;
+        color: white !important;
+    }
+
+    .text-theme {
+        color: #0d6efd !important;
+    }
+
+    .hover-theme:hover {
+        color: #0d6efd !important;
+        transition: 0.2s;
+        cursor: pointer;
+    }
+
+    .active-conversation {
+        background-color: #f0f8ff; /* Xanh nhạt */
+        border-left: 4px solid #0d6efd !important;
+    }
+
+    .cursor-pointer {
+        cursor: pointer;
+    }
+
+    .bubble-left {
+        border-radius: 1rem 1rem 1rem 0;
+    }
+
+    .bubble-right {
+        border-radius: 1rem 1rem 0 1rem;
+    }
+
+</style>
+
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet" />
+
+<div class="container-fluid py-4">
+    <div class="row bg-white shadow mx-auto" style="max-width: 1100px; height: 80vh; min-height: 600px; border-radius: 1rem; border: 1px solid #e5e7eb; overflow: hidden;">
+
+        <div class="col-5 col-md-4 border-end d-flex flex-column p-0 h-100 bg-white">
+            <div class="p-3 border-bottom">
+                <h5 class="fw-bold mb-3 text-dark">Hỗ trợ khách thuê</h5>
+                <div class="input-group">
+                    <span class="input-group-text bg-light border-0 rounded-start-pill text-muted"><i class="fa-solid fa-magnifying-glass"></i></span>
+                    <input type="text" class="form-control bg-light border-0 rounded-end-pill shadow-none" placeholder="Tìm người thuê...">
+                </div>
+            </div>
+            <div class="flex-grow-1 overflow-auto chat-scrollbar">
+                <div class="d-flex align-items-center p-3 border-bottom active-conversation cursor-pointer">
+                    <div class="position-relative flex-shrink-0">
+                        <img src="https://ui-avatars.com/api/?name=Nguyễn+Văn+A&background=random" class="rounded-circle object-fit-cover" style="width: 48px; height: 48px;" alt="Avatar">
+                        <span class="position-absolute bottom-0 end-0 p-1 bg-success border border-white rounded-circle"></span>
+                    </div>
+                    <div class="ms-3 flex-grow-1 overflow-hidden">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <h6 class="mb-0 text-truncate fw-bold text-dark" style="font-size: 0.95rem;">Nguyễn Văn A (Phòng 102)</h6>
+                            <small class="text-muted" style="font-size: 0.75rem;">10:28 AM</small>
+                        </div>
+                        <div class="mt-1">
+                            <small class="text-muted text-truncate mb-0">Dạ vâng, để cháu kiểm tra ngay ạ.</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-7 col-md-8 d-flex flex-column p-0 h-100 bg-white">
+            <div class="p-3 border-bottom d-flex justify-content-between align-items-center bg-white z-1">
+                <div class="d-flex align-items-center">
+                    <img src="https://ui-avatars.com/api/?name=Nguyễn+Văn+A&background=random" class="rounded-circle object-fit-cover" style="width: 42px; height: 42px;" alt="Avatar">
+                    <div class="ms-3">
+                        <h6 class="mb-0 fw-bold text-dark">Nguyễn Văn A</h6>
+                        <small class="text-muted fw-medium" style="font-size: 0.8rem;">Phòng 102</small>
+                    </div>
+                </div>
+                <div class="text-muted fs-5 hide-on-mobile">
+                    <i class="fa-solid fa-phone ms-3 hover-theme"></i>
+                    <i class="fa-solid fa-circle-info ms-3 hover-theme"></i>
+                </div>
+            </div>
+
+            <div class="flex-grow-1 p-4 overflow-auto chat-scrollbar bg-light d-flex flex-column gap-3" id="chatBox">
+                @foreach (var msg in Model)
+                {
+                    bool isMyMessage = msg.SenderId == "owner-456"; // Trong file Owner.cshtml thì sửa thành "owner-456"
+
+                    if (isMyMessage)
+                    {
+                        <div class="d-flex flex-column align-items-end align-self-end" style="max-width: 80%;">
+                            <div class="bg-theme p-3 shadow-sm bubble-right">
+                                <p class="mb-0" style="font-size: 0.9rem;">@msg.Content</p>
+                            </div>
+                            <small class="text-muted d-block mt-1 text-end" style="font-size: 0.7rem;">@msg.SentAt.ToString("HH:mm")</small>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="d-flex align-items-end" style="max-width: 80%;">
+                            <img src="https://ui-avatars.com/api/?name=User&background=random" class="rounded-circle me-2 mb-4 flex-shrink-0" style="width: 32px; height: 32px;">
+                            <div>
+                                <div class="bg-white p-3 shadow-sm border border-light bubble-left text-dark">
+                                    <p class="mb-0" style="font-size: 0.9rem;">@msg.Content</p>
+                                </div>
+                                <small class="text-muted d-block mt-1" style="font-size: 0.7rem;">@msg.SentAt.ToString("HH:mm")</small>
+                            </div>
+                        </div>
+                    }
+                }
+            </div>
+
+            <div class="p-3 border-top bg-white d-flex align-items-center gap-3">
+                <button class="btn btn-link text-muted hover-theme p-0 border-0 shadow-none fs-5"><i class="fa-solid fa-paperclip"></i></button>
+                <div class="flex-grow-1">
+                    <input type="text" class="form-control rounded-pill bg-light border-0 py-2 px-4 shadow-none" id="messageInput" placeholder="Nhập tin nhắn hỗ trợ...">
+                </div>
+                <button id="sendButton" class="btn bg-theme rounded-circle d-flex align-items-center justify-content-center border-0 shadow-sm flex-shrink-0 hover-theme" style="width: 44px; height: 44px; color: white;">
+                    <i class="fa-solid fa-paper-plane"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/8.0.0/signalr.min.js"></script>
+<script>
+    // Định nghĩa danh tính (Tạm thời Mock, sau này truyền từ Model vào)
+    const myId = "owner-456";
+    const targetId = "tenant-123";
+
+    const connection = new signalR.HubConnectionBuilder().withUrl("/chathub").build();
+
+    // Lắng nghe tin nhắn
+    connection.on("ReceiveMessage", function (senderId, message) {
+        const chatBox = document.getElementById("chatBox");
+        const now = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+        let msgHtml = "";
+
+        if (senderId === myId) {
+            // Tin của chính mình (Màu Cam)
+            msgHtml = `
+            <div class="d-flex flex-column align-items-end align-self-end" style="max-width: 80%;">
+                <div class="bg-theme p-3 shadow-sm bubble-right"><p class="mb-0" style="font-size: 0.9rem;">${message}</p></div>
+                <small class="text-muted d-block mt-1 text-end" style="font-size: 0.7rem;">${now}</small>
+            </div>`;
+        } else if (senderId === targetId) {
+            // Tin của đối tác chat (Chủ nhà)
+            msgHtml = `
+            <div class="d-flex align-items-end" style="max-width: 80%;">
+                <img src="https://ui-avatars.com/api/?name=O&background=random" class="rounded-circle me-2 mb-4" style="width: 32px; height: 32px;">
+                <div>
+                    <div class="bg-white p-3 shadow-sm border border-light bubble-left text-dark"><p class="mb-0" style="font-size: 0.9rem;">${message}</p></div>
+                    <small class="text-muted d-block mt-1" style="font-size: 0.7rem;">${now}</small>
+                </div>
+            </div>`;
+        }
+
+        if(msgHtml !== "") {
+            chatBox.insertAdjacentHTML('beforeend', msgHtml);
+            chatBox.scrollTop = chatBox.scrollHeight;
+        }
+    });
+
+    connection.start().catch(err => console.error(err.toString()));
+
+    document.getElementById("sendButton").addEventListener("click", function (event) {
+        const message = document.getElementById("messageInput").value;
+        if(message.trim() !== "") {
+            // Truyền ID của mình, ID đối tác, và Nội dung lên Server
+            connection.invoke("SendMessage", myId, targetId, message).catch(err => console.error(err.toString()));
+            document.getElementById("messageInput").value = "";
+        }
+        event.preventDefault();
+    });
+
+    document.getElementById("messageInput").addEventListener("keypress", function (e) {
+        if (e.key === 'Enter') document.getElementById("sendButton").click();
+    });
+</script>

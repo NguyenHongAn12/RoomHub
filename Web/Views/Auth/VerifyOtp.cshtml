@@ -1,0 +1,127 @@
+﻿@model Web.Models.OtpViewModel
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <title>RoomHub OTP Verification</title>
+
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <script>
+        tailwind.config = {
+        theme:{
+        extend:{
+        colors:{
+        primary:"#F97316",
+        "primary-hover":"#ea580c"
+        }
+        }
+        }
+        }
+    </script>
+
+</head>
+
+<body class="bg-white font-[Inter]">
+
+    <div class="min-h-screen flex">
+
+        <div class="w-full lg:w-1/2 flex flex-col justify-between p-12 bg-white relative">
+
+            <div class="w-full max-w-md mx-auto flex-1 flex flex-col justify-center pb-20 mt-16">
+
+                <div class="mb-10">
+
+                    <h1 class="text-4xl font-bold mb-3">Xác thực email</h1>
+
+                    <p class="text-gray-500 leading-relaxed">
+                        Chúng tôi đã gửi mã xác thực 6 số đến <br />
+                        <span class="font-semibold text-gray-800">@(Model.Email)</span>
+                    </p>
+
+                </div>
+
+                <form asp-action="VerifyOtp" method="post" class="space-y-8">
+
+                    <input type="hidden" asp-for="Email" id="Email" />
+                    <input type="hidden" asp-for="Code" id="Code" />
+
+                    @if (!ViewData.ModelState.IsValid)
+                    {
+                        <div class="bg-red-50 text-red-600 p-4 rounded-xl text-sm border border-red-100 flex items-center">
+                            <span class="material-symbols-outlined mr-2">error</span>
+                            @Html.ValidationSummary(true, "")
+                        </div>
+                    }
+
+                    <div class="flex justify-between gap-2 sm:gap-4">
+
+                        <input type="text" maxlength="1" class="otp w-12 h-14 sm:w-14 sm:h-16 text-center text-2xl font-bold border border-gray-300 rounded-xl focus:border-primary focus:ring-2 focus:ring-orange-200 focus:outline-none transition shadow-sm" />
+                        <input type="text" maxlength="1" class="otp w-12 h-14 sm:w-14 sm:h-16 text-center text-2xl font-bold border border-gray-300 rounded-xl focus:border-primary focus:ring-2 focus:ring-orange-200 focus:outline-none transition shadow-sm" />
+                        <input type="text" maxlength="1" class="otp w-12 h-14 sm:w-14 sm:h-16 text-center text-2xl font-bold border border-gray-300 rounded-xl focus:border-primary focus:ring-2 focus:ring-orange-200 focus:outline-none transition shadow-sm" />
+                        <input type="text" maxlength="1" class="otp w-12 h-14 sm:w-14 sm:h-16 text-center text-2xl font-bold border border-gray-300 rounded-xl focus:border-primary focus:ring-2 focus:ring-orange-200 focus:outline-none transition shadow-sm" />
+                        <input type="text" maxlength="1" class="otp w-12 h-14 sm:w-14 sm:h-16 text-center text-2xl font-bold border border-gray-300 rounded-xl focus:border-primary focus:ring-2 focus:ring-orange-200 focus:outline-none transition shadow-sm" />
+                        <input type="text" maxlength="1" class="otp w-12 h-14 sm:w-14 sm:h-16 text-center text-2xl font-bold border border-gray-300 rounded-xl focus:border-primary focus:ring-2 focus:ring-orange-200 focus:outline-none transition shadow-sm" />
+
+                    </div>
+
+                    <button type="submit"
+                            class="w-full h-14 bg-orange-500 text-white rounded-xl text-lg font-semibold hover:bg-orange-600 focus:ring-4 focus:ring-orange-200 transition shadow-lg shadow-orange-500/30">
+                        Xác thực tài khoản
+                    </button>
+
+                </form>
+
+                <div class="mt-8 text-center text-sm text-gray-500 flex flex-col items-center">
+                    <div>
+                        Chưa nhận được mã? 
+                        <a href="javascript:void(0)" id="resendCodeBtn" class="font-semibold text-primary hover:text-primary-hover hover:underline ml-1">Gửi lại mã</a>
+                    </div>
+                    <span id="resendMessage" class="text-sm mt-3 hidden"></span>
+                </div>
+
+            </div>
+
+        </div>
+
+        <!-- RIGHT SIDE IMAGE -->
+        <!-- RIGHT SIDE IMAGE -->
+
+        <div class="hidden lg:block lg:w-1/2 relative">
+
+            <img src="~/images/otp/otp1.jpg"
+                 class="absolute inset-0 w-full h-full object-cover"
+                 alt="RoomHub Image" />
+
+            <div class="absolute inset-0 bg-black/40"></div>
+
+            <div class="absolute bottom-20 left-16 text-white max-w-lg">
+
+                <h2 class="text-4xl font-bold mb-4">
+                    Securing your account...
+                </h2>
+
+                <p class="text-lg text-white/80">
+                    Protecting your property journey with RoomHub.
+                </p>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <script src="~/js/otp.js" asp-append-version="true"></script>
+
+</body>
+</html>

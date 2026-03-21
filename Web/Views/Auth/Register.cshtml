@@ -1,0 +1,275 @@
+@model Web.Models.RegisterViewModel
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <title>RoomHub Register</title>
+
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Hide browser-native reveal button to avoid overlap with our custom eye icon */
+        input::-ms-reveal,
+        input::-ms-clear {
+            display: none;
+        }
+    </style>
+
+</head>
+
+<body class="bg-white">
+
+    <div class="min-h-screen w-full flex flex-col lg:flex-row">
+
+        <!-- LEFT FORM -->
+
+        <div class="w-full lg:w-[45%] flex flex-col justify-between p-12 bg-white">
+
+            <!-- LOGO -->
+
+            <div class="flex items-center gap-3 mb-10">
+
+                <div class="w-10 h-10 rounded-lg bg-orange-100 flex items-center justify-center">
+                    <span class="material-symbols-outlined text-orange-500">apartment</span>
+                </div>
+
+                <span class="text-xl font-bold">RoomHub</span>
+
+            </div>
+
+
+            <div class="max-w-md mx-auto w-full">
+
+                <h1 class="text-3xl font-bold mb-2">
+                    Tạo tài khoản
+                </h1>
+
+                <p class="text-gray-500 mb-6">
+                    Chọn vai trò và bắt đầu hành trình của bạn.
+                </p>
+
+
+                <form id="registerForm"
+                      asp-controller="Auth"
+                      asp-action="Register"
+                      method="post"
+                      class="space-y-5">
+
+                    <!-- VALIDATION -->
+                    <div class="text-red-500 text-sm"></div>
+
+                    <!-- ROLE -->
+
+                    <div class="grid grid-cols-2 gap-4">
+
+                        <div class="relative">
+                            <input id="tenantRole"
+                                   asp-for="Role"
+                                   type="radio"
+                                   value="Tenant"
+                                   required
+                                   class="peer sr-only">
+                            <label for="tenantRole" class="cursor-pointer border border-gray-200 rounded-xl p-4 text-center block h-full peer-checked:border-orange-500 peer-checked:bg-orange-50 transition-all">
+                                <span class="material-symbols-outlined text-gray-400 peer-checked:text-orange-500 block mb-2">
+                                    person
+                                </span>
+                                Khách thuê
+                            </label>
+                        </div>
+
+                        <div class="relative">
+                            <input id="ownerRole"
+                                   asp-for="Role"
+                                   type="radio"
+                                   value="PropertyOwner"
+                                   class="peer sr-only">
+                            <label for="ownerRole" class="cursor-pointer border border-gray-200 rounded-xl p-4 text-center block h-full peer-checked:border-orange-500 peer-checked:bg-orange-50 transition-all">
+                                <span class="material-symbols-outlined text-gray-400 peer-checked:text-orange-500 block mb-2">
+                                    domain
+                                </span>
+                                Chủ nhà
+                            </label>
+                        </div>
+
+                    </div>
+                    <span asp-validation-for="Role" class="text-red-500 text-sm"></span>
+
+                    <!-- FULLNAME -->
+
+                    <div>
+
+                        <label class="block text-sm font-medium mb-1">
+                            Họ và tên
+                        </label>
+
+                        <input asp-for="FullName"
+                               required
+                               class="w-full h-11 px-4 border rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500" />
+
+                        <span asp-validation-for="FullName" class="text-red-500 text-sm"></span>
+
+                    </div>
+
+                    <!-- EMAIL -->
+
+                    <div>
+
+                        <label class="block text-sm font-medium mb-1">
+                            Email
+                        </label>
+
+                        <input asp-for="Email"
+                               id="Email"
+                               type="email"
+                               required
+                               class="w-full h-11 px-4 border rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500" />
+
+                        <span id="emailError" class="text-red-500 text-sm hidden">Email này đã được sử dụng.</span>
+                        <span asp-validation-for="Email" class="text-red-500 text-sm"></span>
+
+                    </div>
+
+                    <!-- PASSWORD -->
+
+                    <div>
+
+                        <label class="block text-sm font-medium mb-1">
+                            Mật khẩu
+                        </label>
+
+                        <div class="relative">
+                            <input asp-for="Password"
+                                   id="Password"
+                                   type="password"
+                                   required
+                                   class="w-full h-11 pl-4 pr-12 border rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500" />
+                            <button type="button" onclick="togglePassword('Password', 'eyePass')"
+                                    class="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-orange-500 transition-colors focus:outline-none">
+                                <span id="eyePass" class="material-symbols-outlined" style="font-size: 20px;">visibility</span>
+                            </button>
+                        </div>
+
+                        <div class="text-sm mt-2 space-y-1">
+
+                            <p id="lengthRule" class="text-gray-400">
+                                • Ít nhất 6 ký tự
+                            </p>
+
+                            <p id="numberRule" class="text-gray-400">
+                                • Chứa ít nhất 1 số
+                            </p>
+
+                            <p id="upperRule" class="text-gray-400">
+                                • Chứa chữ in hoa
+                            </p>
+
+                        </div>
+
+                        <span asp-validation-for="Password" class="text-red-500 text-sm"></span>
+
+                    </div>
+
+                    <!-- CONFIRM PASSWORD -->
+
+                    <div>
+
+                        <label class="block text-sm font-medium mb-1">
+                            Xác nhận mật khẩu
+                        </label>
+
+                        <div class="relative">
+                            <input asp-for="ConfirmPassword"
+                                   id="ConfirmPassword"
+                                   type="password"
+                                   required
+                                   class="w-full h-11 pl-4 pr-12 border rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500" />
+                            <button type="button" onclick="togglePassword('ConfirmPassword', 'eyeConfirm')"
+                                    class="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-orange-500 transition-colors focus:outline-none">
+                                <span id="eyeConfirm" class="material-symbols-outlined" style="font-size: 20px;">visibility</span>
+                            </button>
+                        </div>
+
+                        <span asp-validation-for="ConfirmPassword" class="text-red-500 text-sm"></span>
+
+                    </div>
+
+                    <!-- TERMS -->
+
+                    <div class="flex items-center gap-2">
+
+                        <input type="checkbox" required>
+
+                        <span class="text-sm">
+                            Tôi đồng ý với Điều khoản sử dụng
+                        </span>
+
+                    </div>
+
+                    <!-- BUTTON -->
+
+                    <button type="submit"
+                            class="w-full h-12 bg-orange-500 hover:bg-orange-600 text-white rounded-lg">
+
+                        Đăng ký tài khoản
+
+                    </button>
+
+                </form>
+
+            </div>
+
+
+            <div class="text-center mt-6">
+
+                <p class="text-sm">
+
+                    Đã có tài khoản?
+
+                    <a asp-controller="Auth"
+                       asp-action="Login"
+                       class="text-orange-500">
+
+                        Đăng nhập
+
+                    </a>
+
+                </p>
+
+            </div>
+
+        </div>
+
+
+        <!-- RIGHT IMAGE -->
+
+        <div class="hidden lg:block lg:w-[55%] relative">
+
+            <img src="/images/register/register1.png"
+                 class="absolute inset-0 w-full h-full object-cover">
+
+        </div>
+
+    </div>
+
+    <script src="/js/register.js"></script>
+    <script>
+        function togglePassword(inputId, iconId) {
+            const input = document.getElementById(inputId);
+            const icon = document.getElementById(iconId);
+            if (input && icon) {
+                const isPassword = input.type === 'password';
+                input.type = isPassword ? 'text' : 'password';
+                icon.textContent = isPassword ? 'visibility_off' : 'visibility';
+            }
+        }
+    </script>
+</body>
+</html>

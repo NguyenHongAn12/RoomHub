@@ -1,0 +1,228 @@
+@model Web.Models.LoginViewModel
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <title>RoomHub | Login</title>
+
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet">
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Hide browser-native reveal button to avoid overlap with our custom eye icon */
+        input::-ms-reveal,
+        input::-ms-clear {
+            display: none;
+        }
+    </style>
+
+</head>
+
+<body class="bg-gray-100">
+
+    <div class="min-h-screen flex">
+
+        <!-- LEFT SIDE -->
+
+        <div class="w-full lg:w-1/2 flex flex-col justify-center px-8 sm:px-16 lg:px-24 bg-white">
+
+            <!-- LOGO -->
+
+            <div class="flex items-center gap-3 mb-10">
+
+                <div class="w-10 h-10 rounded-lg bg-orange-100 flex items-center justify-center">
+                    <span class="material-symbols-outlined text-orange-600">
+                        apartment
+                    </span>
+                </div>
+
+                <span class="text-xl font-bold">RoomHub</span>
+
+            </div>
+
+            <!-- LOGIN FORM -->
+
+            <div class="max-w-md w-full">
+
+                <h1 class="text-3xl font-bold mb-2">
+                    Chào mừng trở lại
+                </h1>
+
+                <p class="text-gray-500 mb-8">
+                    Đăng nhập vào tài khoản của bạn
+                </p>
+
+                <form asp-controller="Auth"
+                      asp-action="Login"
+                      method="post"
+                      class="space-y-6">
+                    <div asp-validation-summary="All" class="text-red-500 text-sm"></div>
+
+                    <!-- EMAIL -->
+
+                    <div>
+
+                        <label class="block text-sm font-medium mb-1">
+                            Email
+                        </label>
+
+                        <input asp-for="Email"
+                               class="w-full h-11 px-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
+                               placeholder="Nhập email của bạn" />
+
+                        <span asp-validation-for="Email"
+                              class="text-red-500 text-sm"></span>
+
+                    </div>
+
+                    <!-- PASSWORD -->
+
+                    <div>
+
+                        <label class="block text-sm font-medium mb-1">
+                            Mật khẩu
+                        </label>
+
+                        <div class="relative">
+
+                            <input asp-for="Password"
+                                   id="password"
+                                   type="password"
+                                   class="w-full h-11 pl-4 pr-12 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
+                                   placeholder="Nhập mật khẩu của bạn" />
+
+                            <button type="button"
+                                    id="togglePassword"
+                                    class="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-orange-500 transition-colors focus:outline-none">
+
+                                <span class="material-symbols-outlined" style="font-size: 20px;">
+                                    visibility
+                                </span>
+
+                            </button>
+
+                        </div>
+
+                        <span asp-validation-for="Password"
+                              class="text-red-500 text-sm"></span>
+
+                    </div>
+
+                    <!-- REMEMBER -->
+
+                    <div class="flex items-center justify-between">
+
+                        <label class="flex items-center gap-2 text-sm">
+
+                            <input asp-for="RememberMe"
+                                   class="rounded border-gray-300">
+
+                            Ghi nhớ đăng nhập
+
+                        </label>
+
+                        <a asp-controller="Auth" asp-action="ForgotPassword"
+                           class="text-sm text-blue-600 hover:underline">
+                            Quên mật khẩu?
+                        </a>
+
+                    </div>
+
+                    <!-- BUTTON -->
+
+                    <button type="submit"
+                            class="w-full h-11 bg-orange-500 hover:bg-orange-600 text-white rounded-lg font-medium transition">
+                        Đăng nhập
+                    </button>
+
+                    <!-- DIVIDER -->
+
+                    <div class="flex items-center gap-4 my-6">
+                        <div class="flex-1 h-px bg-gray-200"></div>
+                        <span class="text-sm text-gray-400">Hoặc</span>
+                        <div class="flex-1 h-px bg-gray-200"></div>
+                    </div>
+
+                    <!-- SOCIAL LOGIN -->
+
+                    <div class="space-y-3">
+
+                        <!-- GOOGLE -->
+
+                        <a href="/Auth/LoginGoogle"
+                           class="w-full h-11 border border-gray-300 rounded-lg flex items-center justify-center gap-3 hover:bg-gray-50 transition">
+
+                            <img src="https://www.svgrepo.com/show/475656/google-color.svg"
+                                 class="w-5 h-5">
+
+                            <span class="text-sm font-medium text-gray-700">
+                                Đăng nhập với Google
+                            </span>
+
+                        </a>
+
+                        <!-- FACEBOOK -->
+
+                        <a href="/Auth/LoginFacebook"
+                           class="w-full h-11 border border-gray-300 rounded-lg flex items-center justify-center gap-3 hover:bg-gray-50 transition">
+
+                            <img src="https://www.svgrepo.com/show/475647/facebook-color.svg"
+                                 class="w-5 h-5">
+
+                            <span class="text-sm font-medium text-gray-700">
+                                Đăng nhập với Facebook
+                            </span>
+
+                        </a>
+
+                    </div>
+
+                </form>
+
+            </div>
+            <div class="text-center mt-6">
+
+                <p class="text-sm">
+
+                    Chưa có tài khoản?
+
+                    <a asp-controller="Auth"
+                       asp-action="Register"
+                       class="text-orange-500 font-medium hover:underline">
+
+                        Đăng ký
+
+                    </a>
+
+                </p>
+
+            </div>
+
+        </div>
+
+        <!-- RIGHT IMAGE -->
+
+        <div class="hidden lg:block lg:w-1/2 relative overflow-hidden">
+
+            <img id="loginSlider"
+                 src="/images/login/login1.jpg"
+                 class="absolute inset-0 w-full h-full object-cover transition-opacity duration-1000"
+                 alt="RoomHub">
+
+        </div>
+
+    </div>
+
+    <script src="/js/login.js"></script>
+
+</body>
+
+</html>

@@ -1,0 +1,98 @@
+﻿@{
+    Layout = null;
+    ViewData["Title"] = "Account Created";
+}
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Account Created</title>
+
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+
+</head>
+
+<body class="bg-gray-50">
+
+    <div class="min-h-screen w-full flex flex-col lg:flex-row">
+
+        <!-- LEFT CONTENT -->
+
+        <div class="w-full lg:w-[45%] flex flex-col justify-center items-center p-12 bg-white relative">
+            
+            <!-- Logo RoomHub -->
+            <div class="absolute top-10 left-10 flex items-center gap-3">
+                <div class="w-10 h-10 rounded-lg bg-orange-100 flex items-center justify-center">
+                    <span class="material-symbols-outlined text-orange-600">apartment</span>
+                </div>
+                <span class="text-xl font-bold">RoomHub</span>
+            </div>
+
+            <div class="max-w-md text-center mt-12">
+
+                <!-- SUCCESS ICON (Animated slightly) -->
+
+                <div class="w-24 h-24 rounded-full bg-green-50 flex items-center justify-center mx-auto mb-8 relative">
+                    <div class="absolute inset-0 rounded-full bg-green-100 animate-pulse"></div>
+                    <span class="material-symbols-outlined text-green-500 text-5xl relative z-10">
+                        check_circle
+                    </span>
+                </div>
+
+                <!-- TITLE -->
+
+                <h1 class="text-4xl font-extrabold mb-4 text-gray-900 leading-tight">
+                    Tạo tài khoản<br/>Thành công!
+                </h1>
+
+                <!-- DESCRIPTION -->
+
+                <p class="text-gray-500 text-lg mb-10 leading-relaxed">
+                    Email của bạn đã được xác nhận và tài khoản RoomHub đã sẵn sàng để sử dụng.
+                    Bạn sẽ được chuyển hướng đến trang đăng nhập trong giây lát.
+                </p>
+
+                <!-- BUTTON -->
+
+                <a href="/Auth/Login"
+                   class="inline-flex items-center justify-center w-full sm:w-auto px-8 py-4 bg-orange-500 hover:bg-orange-600 text-white rounded-xl text-lg font-semibold transition shadow-lg shadow-orange-500/30">
+                    Đi đến Đăng nhập
+                    <span class="material-symbols-outlined ml-2 text-xl">arrow_forward</span>
+                </a>
+
+            </div>
+
+        </div>
+
+
+        <!-- RIGHT IMAGE -->
+
+        <div class="hidden lg:block lg:w-[55%] relative">
+
+            <img src="/images/login/otpsuccess.jpg"
+                 class="absolute inset-0 w-full h-full object-cover" />
+
+            <!-- overlay -->
+
+            <div class="absolute inset-0 bg-black/20"></div>
+
+        </div>
+
+    </div>
+
+    <script>
+
+        setTimeout(function () {
+            window.location.href = "/Auth/Login";
+        }, 5000);
+
+    </script>
+
+</body>
+</html>

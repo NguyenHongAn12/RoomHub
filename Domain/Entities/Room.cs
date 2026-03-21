@@ -1,4 +1,4 @@
-﻿using Domain.Enums;
+using Domain.Enums;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -19,13 +19,19 @@ namespace Domain.Entities
         public string? Description { get; set; }
         public bool IsFurnished { get; set; } = true;
         public RoomStatus Status { get; set; }
-        public string? Photos { get; set; } // JSON array
+        
+        // Post fields
+        public string LandlordId { get; set; } = null!;
+        public string Title { get; set; } = null!;
+
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
         public DateTime? UpdatedAt { get; set; }
         public bool IsDeleted { get; set; }
 
         // Navigation
+        public virtual ApplicationUser Landlord { get; set; } = null!;
         public virtual Floor Floor { get; set; } = null!;
+        public virtual ICollection<RoomPhoto> RoomPhotos { get; set; } = new List<RoomPhoto>();
         public virtual ICollection<RoomAmenity> RoomAmenities { get; set; } = new List<RoomAmenity>();
         public virtual ICollection<Deposit> Deposits { get; set; } = new List<Deposit>();
         public virtual ICollection<Contract> Contracts { get; set; } = new List<Contract>();

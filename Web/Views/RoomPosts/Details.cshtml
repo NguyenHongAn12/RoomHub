@@ -1,0 +1,317 @@
+@model Application.DTOs.RoomPosts.RoomDetailsViewModel
+
+
+<main class="max-w-[1200px] mx-auto px-4 py-4">
+    <nav aria-label="Breadcrumb" class="flex text-sm text-slate-500 dark:text-slate-400 mb-4">
+        <ol class="inline-flex items-center space-x-1 md:space-x-3">
+            <li class="inline-flex items-center">
+                <a class="hover:text-primary" href="/">Trang chủ</a>
+            </li>
+            <li>
+                <div class="flex items-center">
+                    <span class="material-icons-outlined text-xs mx-1">chevron_right</span>
+                    <a class="hover:text-primary" href="#">Cho thuê</a>
+                </div>
+            </li>
+            @if (!string.IsNullOrEmpty(Model.LocationDetails))
+            {
+                var locParts = Model.LocationDetails.Split(',');
+                if (locParts.Length > 0)
+                {
+                    <li>
+                        <div class="flex items-center">
+                            <span class="material-icons-outlined text-xs mx-1">chevron_right</span>
+                            <a class="hover:text-primary" href="#">@locParts[locParts.Length - 1].Trim()</a>
+                        </div>
+                    </li>
+                }
+                if (locParts.Length > 1)
+                {
+                    <li aria-current="page">
+                        <div class="flex items-center">
+                            <span class="material-icons-outlined text-xs mx-1">chevron_right</span>
+                            <span class="font-medium text-slate-800 dark:text-slate-200">@locParts[locParts.Length - 2].Trim()</span>
+                        </div>
+                    </li>
+                }
+            }
+        </ol>
+    </nav>
+    <div class="grid grid-cols-12 gap-6">
+        <div class="col-span-12 lg:col-span-8 space-y-6">
+            <div class="bg-white dark:bg-slate-900 rounded-xl overflow-hidden shadow-sm border border-slate-200 dark:border-slate-800">
+                <div class="relative group aspect-video bg-black flex items-center justify-center">
+                    <img id="mainImage" alt="Main property view" class="max-h-full object-contain" src="@(Model.Photos.FirstOrDefault()?.Url ?? "https://placeholder.com/800x600")"/>
+                    <button class="absolute left-4 top-1/2 -translate-y-1/2 bg-white/20 hover:bg-white/40 backdrop-blur-md text-white p-2 rounded-full transition-all opacity-0 group-hover:opacity-100" onclick="prevImage()">
+                        <span class="material-icons-outlined">chevron_left</span>
+                    </button>
+                    <button class="absolute right-4 top-1/2 -translate-y-1/2 bg-white/20 hover:bg-white/40 backdrop-blur-md text-white p-2 rounded-full transition-all opacity-0 group-hover:opacity-100" onclick="nextImage()">
+                        <span class="material-icons-outlined">chevron_right</span>
+                    </button>
+                    <div class="absolute bottom-4 right-4 bg-black/60 text-white px-3 py-1 rounded-full text-xs backdrop-blur-sm">
+                        <span id="currentImageIndex">1</span> / @Math.Max(1, Model.Photos.Count)
+                    </div>
+                </div>
+                <div class="flex gap-2 p-3 overflow-x-auto hide-scrollbar" id="thumbnailContainer">
+                    @for (int i = 0; i < Model.Photos.Count; i++)
+                    {
+                        var photo = Model.Photos[i];
+                        var isFirst = i == 0;
+                        <div class="w-20 h-20 shrink-0 rounded-lg overflow-hidden @(isFirst ? "border-2 border-primary" : "grayscale hover:grayscale-0 transition-all cursor-pointer") thumbnail-item" onclick="setImage(@i, '@photo.Url')">
+                            <img alt="Thumb" class="w-full h-full object-cover" src="@photo.Url"/>
+                        </div>
+                    }
+                </div>
+            </div>
+            
+            <div class="bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 sticky top-[72px] z-30 flex gap-6 px-1">
+                <button class="py-4 px-2 text-primary border-b-2 border-primary font-semibold text-sm">Tổng quan</button>
+                <button class="py-4 px-2 text-slate-500 dark:text-slate-400 hover:text-primary transition-colors font-medium text-sm">Đặc điểm</button>
+                <button class="py-4 px-2 text-slate-500 dark:text-slate-400 hover:text-primary transition-colors font-medium text-sm">Mô tả</button>
+                <button class="py-4 px-2 text-slate-500 dark:text-slate-400 hover:text-primary transition-colors font-medium text-sm">Bản đồ</button>
+            </div>
+            
+            <div class="bg-white dark:bg-slate-900 p-6 rounded-xl shadow-sm border border-slate-200 dark:border-slate-800">
+                <div class="flex justify-between items-start">
+                    <div class="space-y-2">
+                        <h1 class="text-2xl font-bold leading-tight">@Model.Title</h1>
+                        <p class="text-slate-500 dark:text-slate-400 text-sm">
+                            @(Model.IsFurnished ? "Nội thất đầy đủ" : "Nhà trống")
+                        </p>
+                    </div>
+                    <button class="flex items-center gap-2 border border-slate-200 dark:border-slate-700 px-3 py-1.5 rounded-full hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors">
+                        <span class="material-icons-outlined text-rose-500 text-lg">favorite_border</span>
+                        <span class="text-sm font-medium">Lưu</span>
+                    </button>
+                </div>
+                <div class="mt-4 flex items-baseline gap-4">
+                    <span class="text-2xl font-bold text-rose-600">@(Model.BasePrice.ToString("N0")) đ/tháng</span>
+                    <span class="text-slate-400 dark:text-slate-500">•</span>
+                    <span class="text-lg font-semibold">@(Model.SurfaceArea?.ToString("0.##") ?? "N/A") m²</span>
+                </div>
+                <div class="mt-4 flex items-start gap-2 text-slate-600 dark:text-slate-400 text-sm">
+                    <span class="material-icons-outlined text-slate-400 mt-0.5">place</span>
+                    <div>
+                        <p>@Model.Address</p>
+                        <p class="text-xs text-slate-400 mt-1">(@Model.LocationDetails)</p>
+                    </div>
+                </div>
+                <div class="mt-4 pt-4 border-t border-slate-100 dark:border-slate-800 flex items-center text-xs text-slate-400">
+                    <span class="material-icons-outlined text-xs mr-1">schedule</span>
+                    @{
+                        var timeSpan = DateTime.UtcNow - Model.CreatedAt;
+                        var timeText = "Cập nhật gần đây";
+                        if (timeSpan.TotalHours < 24) timeText = $"Cập nhật {(int)timeSpan.TotalHours} giờ trước";
+                        else timeText = $"Cập nhật {(int)timeSpan.TotalDays} ngày trước";
+                    }
+                    @timeText
+                </div>
+            </div>
+            
+            <div class="bg-white dark:bg-slate-900 p-6 rounded-xl shadow-sm border border-slate-200 dark:border-slate-800">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-y-4 gap-x-12">
+                    <div class="flex items-center gap-4 py-3 border-b border-slate-50 dark:border-slate-800">
+                        <div class="p-2 bg-slate-100 dark:bg-slate-800 rounded-lg">
+                            <span class="material-icons-outlined text-primary">straighten</span>
+                        </div>
+                        <div class="flex-1">
+                            <p class="text-xs text-slate-500 dark:text-slate-400">Diện tích</p>
+                            <p class="font-semibold">@(Model.SurfaceArea?.ToString("0.##") ?? "N/A") m²</p>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-4 py-3 border-b border-slate-50 dark:border-slate-800">
+                        <div class="p-2 bg-slate-100 dark:bg-slate-800 rounded-lg">
+                            <span class="material-icons-outlined text-primary">chair</span>
+                        </div>
+                        <div class="flex-1">
+                            <p class="text-xs text-slate-500 dark:text-slate-400">Tình trạng nội thất</p>
+                            <p class="font-semibold">@(Model.IsFurnished ? "Nội thất đầy đủ" : "Cơ bản")</p>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-4 py-3">
+                        <div class="p-2 bg-slate-100 dark:bg-slate-800 rounded-lg">
+                            <span class="material-icons-outlined text-primary">payments</span>
+                        </div>
+                        <div class="flex-1">
+                            <p class="text-xs text-slate-500 dark:text-slate-400">Số tiền cọc</p>
+                            <p class="font-semibold">@(Model.DepositAmount?.ToString("N0") ?? Model.BasePrice.ToString("N0")) đ</p>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-4 py-3">
+                        <div class="p-2 bg-slate-100 dark:bg-slate-800 rounded-lg">
+                            <span class="material-icons-outlined text-primary">elevator</span>
+                        </div>
+                        <div class="flex-1">
+                            <p class="text-xs text-slate-500 dark:text-slate-400">Tầng</p>
+                            <p class="font-semibold">Lầu @Model.FloorNumber</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="bg-white dark:bg-slate-900 p-6 rounded-xl shadow-sm border border-slate-200 dark:border-slate-800">
+                <h3 class="font-bold text-lg mb-4">Mô tả chi tiết</h3>
+                <div class="prose dark:prose-invert prose-slate max-w-none text-sm leading-relaxed text-slate-700 dark:text-slate-300" style="white-space: pre-wrap;">
+@Model.Description
+                </div>
+            </div>
+            
+            @if (Model.Amenities != null && Model.Amenities.Any())
+            {
+                <div class="bg-white dark:bg-slate-900 p-6 rounded-xl shadow-sm border border-slate-200 dark:border-slate-800">
+                    <h3 class="font-bold text-lg mb-4">Tiện ích</h3>
+                    <div class="grid grid-cols-2 md:grid-cols-3 gap-4">
+                        @foreach (var amenity in Model.Amenities)
+                        {
+                            <div class="flex items-center gap-2 text-sm text-slate-700 dark:text-slate-300">
+                                @if(!string.IsNullOrEmpty(amenity.IconUrl))
+                                {
+                                    <i class="@amenity.IconUrl text-primary"></i>
+                                }
+                                else
+                                {
+                                    <span class="material-icons-outlined text-primary text-sm">check_circle</span>
+                                }
+                                <span>@amenity.Name</span>
+                            </div>
+                        }
+                    </div>
+                </div>
+            }
+
+            <div class="bg-white dark:bg-slate-900 p-6 rounded-xl shadow-sm border border-slate-200 dark:border-slate-800">
+                <h3 class="font-bold text-lg mb-4">Xem trên bản đồ</h3>
+                <div class="relative h-[300px] rounded-lg overflow-hidden bg-slate-100 dark:bg-slate-800">
+                    <img alt="Map placeholder" class="w-full h-full object-cover opacity-50 grayscale" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCWSBlxWhNmXD6CedOt9njWbQiLoXQUx3CnpB4PPSaQwun9HbJlaWIfOz30AEjMRnWcWXK_TFDa2ByTYsB2Di3oMhGX75vDbwEZ1c6kMOLcEHWebFuIaRl8RXY27cHcR0Z4hVgCU-gLsvL5y198e36rGBSz70TEwyNHGEMvj2Nh79v5mP2EBw9X-lNXh2wN8vTRwEU1LLrhmp95nUgX34e2vlPOOX1S4--b8pBn13_qvhlTXXE6N9uguwp4sORiO1_Pbx1fRu_70dU"/>
+                    <div class="absolute inset-0 flex items-center justify-center">
+                        <div class="w-32 h-32 bg-primary/20 border-2 border-primary rounded-full animate-pulse flex items-center justify-center">
+                            <div class="w-4 h-4 bg-primary rounded-full shadow-[0_0_10px_rgba(249,115,22,0.8)]"></div>
+                        </div>
+                    </div>
+                    <div class="absolute bottom-4 left-4 right-4 bg-white dark:bg-slate-900 p-3 rounded-lg shadow-lg flex items-center gap-3 border border-slate-200 dark:border-slate-700">
+                        <span class="material-icons-outlined text-primary">info</span>
+                        <p class="text-xs text-slate-600 dark:text-slate-400">Vị trí chính xác sẽ được cung cấp sau khi liên hệ người bán.</p>
+                    </div>
+                </div>
+            </div>
+            
+        </div>
+        
+        <div class="col-span-12 lg:col-span-4 space-y-4">
+            <div class="sticky top-[88px] space-y-4">
+                <div class="bg-white dark:bg-slate-900 p-5 rounded-xl shadow-sm border border-slate-200 dark:border-slate-800">
+                    <div class="flex items-center gap-4 mb-6">
+                        <div class="relative">
+                            <img alt="Avatar" class="w-14 h-14 rounded-full border border-slate-200 dark:border-slate-700 object-cover" src="@Model.LandlordAvatarUrl"/>
+                            <div class="absolute bottom-0 right-0 w-4 h-4 bg-green-500 border-2 border-white dark:border-slate-900 rounded-full"></div>
+                        </div>
+                        <div>
+                            <h3 class="font-bold text-lg leading-none mb-1">@Model.LandlordName</h3>
+                            <div class="flex items-center gap-2">
+                                <span class="inline-flex items-center text-[10px] font-bold px-1.5 py-0.5 rounded bg-amber-100 text-amber-700 uppercase">Chủ nhà</span>
+                                <span class="text-xs text-slate-400">• Đang hoạt động</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-2 gap-4 mb-6 text-sm py-4 border-y border-slate-50 dark:border-slate-800">
+                        <div class="text-center border-r border-slate-100 dark:border-slate-800">
+                            <p class="text-slate-500 dark:text-slate-400 text-xs mb-1">Phản hồi</p>
+                            <p class="font-bold text-primary">N/A</p>
+                        </div>
+                        <div class="text-center">
+                            <p class="text-slate-500 dark:text-slate-400 text-xs mb-1">Tham gia</p>
+                            <p class="font-bold">@Model.LandlordJoinedYears năm</p>
+                        </div>
+                    </div>
+                    <div class="space-y-3">
+                        <button class="w-full flex items-center justify-center gap-2 py-3 border-2 border-primary text-primary font-bold rounded-lg hover:bg-orange-50 dark:hover:bg-orange-950/20 transition-colors">
+                            <span class="material-icons-outlined">chat</span>
+                            Chat với người bán
+                        </button>
+                        <button class="w-full flex items-center justify-center gap-2 py-3 bg-primary text-white font-bold rounded-lg hover:bg-orange-600 transition-colors shadow-lg shadow-orange-500/20">
+                            <span class="material-icons-outlined">phone_in_talk</span>
+                            @{
+                                var phoneStr = Model.LandlordPhone ?? "Đang cập nhật";
+                                if (phoneStr.Length > 6) {
+                                    phoneStr = phoneStr.Substring(0, 6) + " ***";
+                                }
+                            }
+                            Hiện số @phoneStr
+                        </button>
+                    </div>
+                    <div class="mt-6">
+                        <p class="text-xs font-semibold text-slate-500 dark:text-slate-400 mb-3 uppercase tracking-wider">Gợi ý nhanh</p>
+                        <div class="flex flex-wrap gap-2">
+                            <button class="px-3 py-1.5 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-xs rounded-full transition-colors">Phòng còn không ạ?</button>
+                            <button class="px-3 py-1.5 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-xs rounded-full transition-colors">Địa chỉ chính xác?</button>
+                            <button class="px-3 py-1.5 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-xs rounded-full transition-colors">Giờ giấc thế nào?</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="bg-white dark:bg-slate-900 p-5 rounded-xl shadow-sm border border-slate-200 dark:border-slate-800">
+                    <h3 class="font-bold mb-4">Bình luận</h3>
+                    <div class="flex flex-col items-center justify-center py-8 text-slate-400">
+                        <span class="material-icons-outlined text-4xl mb-2 opacity-30">forum</span>
+                        <p class="text-xs text-center">Chưa có bình luận nào.<br/>Hãy là người đầu tiên đặt câu hỏi!</p>
+                    </div>
+                    <div class="mt-4 flex items-center gap-2 bg-slate-100 dark:bg-slate-800 rounded-lg px-3 py-2 border border-transparent focus-within:border-primary transition-all">
+                        <input class="bg-transparent border-none focus:ring-0 text-sm w-full p-0" placeholder="Bình luận..." type="text"/>
+                        <button class="text-primary disabled:opacity-50">
+                            <span class="material-icons-outlined">send</span>
+                        </button>
+                    </div>
+                </div>
+                <div class="bg-amber-50 dark:bg-amber-900/10 p-4 rounded-xl border border-amber-200 dark:border-amber-900/30">
+                    <div class="flex gap-3">
+                        <span class="material-icons-outlined text-amber-500">security</span>
+                        <div>
+                            <p class="text-xs font-bold text-amber-800 dark:text-amber-400 mb-1">Mẹo an toàn</p>
+                            <p class="text-[11px] text-amber-700 dark:text-amber-500 leading-relaxed">Không bao giờ trả phí đặt cọc trước khi xem phòng trực tiếp. Hãy đi cùng bạn bè khi đến xem chỗ ở mới.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+
+@section Scripts {
+    <script>
+        const photos = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.Photos.Select(p => p.Url)));
+        let currentIndex = 0;
+
+        function updateMainImage() {
+            if (photos.length === 0) return;
+            document.getElementById('mainImage').src = photos[currentIndex];
+            document.getElementById('currentImageIndex').innerText = currentIndex + 1;
+            
+            const thumbnails = document.querySelectorAll('.thumbnail-item');
+            thumbnails.forEach((thumb, idx) => {
+                if (idx === currentIndex) {
+                    thumb.classList.remove('grayscale', 'hover:grayscale-0', 'cursor-pointer');
+                    thumb.classList.add('border-2', 'border-primary');
+                } else {
+                    thumb.classList.add('grayscale', 'hover:grayscale-0', 'cursor-pointer');
+                    thumb.classList.remove('border-2', 'border-primary');
+                }
+            });
+        }
+
+        function setImage(index, url) {
+            currentIndex = index;
+            updateMainImage();
+        }
+
+        function prevImage() {
+            if (photos.length === 0) return;
+            currentIndex = (currentIndex === 0) ? photos.length - 1 : currentIndex - 1;
+            updateMainImage();
+        }
+
+        function nextImage() {
+            if (photos.length === 0) return;
+            currentIndex = (currentIndex === photos.length - 1) ? 0 : currentIndex + 1;
+            updateMainImage();
+        }
+    </script>
+}

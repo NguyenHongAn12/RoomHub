@@ -1,0 +1,185 @@
+@model Web.Models.OtpViewModel
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <title>RoomHub | Reset Password Verification</title>
+
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet">
+
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: "#F97316",
+                        "primary-hover": "#ea580c"
+                    }
+                }
+            }
+        }
+    </script>
+
+</head>
+
+<body class="bg-white font-[Inter]">
+
+    <div class="min-h-screen flex">
+
+        <div class="w-full lg:w-1/2 flex flex-col justify-between p-12 bg-white relative">
+
+            <div class="w-full max-w-md mx-auto flex-1 flex flex-col justify-center pb-20 mt-16">
+
+                <div class="mb-10">
+
+                    <h1 class="text-4xl font-bold mb-3">Xác thực mã OTP</h1>
+
+                    <p class="text-gray-500 leading-relaxed">
+                        Vui lòng nhập mã xác thực 6 số đã được gửi đến email <br />
+                        <span class="font-semibold text-gray-800">@(Model.Email)</span>
+                    </p>
+
+                </div>
+
+                <form asp-action="VerifyResetOtp" method="post" class="space-y-8" id="otpForm">
+                    @Html.AntiForgeryToken()
+
+                    <input type="hidden" asp-for="Email" id="Email" />
+                    <input type="hidden" asp-for="Code" id="Code" />
+
+                    @if (!ViewData.ModelState.IsValid)
+                    {
+                        <div class="bg-red-50 text-red-600 p-4 rounded-xl text-sm border border-red-100 flex items-center">
+                            <span class="material-symbols-outlined mr-2">error</span>
+                            @Html.ValidationSummary(true, "")
+                        </div>
+                    }
+
+                    <div class="flex justify-between gap-2 sm:gap-4" id="otp-inputs">
+                        <input type="text" maxlength="1" class="otp w-12 h-14 sm:w-14 sm:h-16 text-center text-2xl font-bold border border-gray-300 rounded-xl focus:border-primary focus:ring-2 focus:ring-orange-200 focus:outline-none transition shadow-sm" />
+                        <input type="text" maxlength="1" class="otp w-12 h-14 sm:w-14 sm:h-16 text-center text-2xl font-bold border border-gray-300 rounded-xl focus:border-primary focus:ring-2 focus:ring-orange-200 focus:outline-none transition shadow-sm" />
+                        <input type="text" maxlength="1" class="otp w-12 h-14 sm:w-14 sm:h-16 text-center text-2xl font-bold border border-gray-300 rounded-xl focus:border-primary focus:ring-2 focus:ring-orange-200 focus:outline-none transition shadow-sm" />
+                        <input type="text" maxlength="1" class="otp w-12 h-14 sm:w-14 sm:h-16 text-center text-2xl font-bold border border-gray-300 rounded-xl focus:border-primary focus:ring-2 focus:ring-orange-200 focus:outline-none transition shadow-sm" />
+                        <input type="text" maxlength="1" class="otp w-12 h-14 sm:w-14 sm:h-16 text-center text-2xl font-bold border border-gray-300 rounded-xl focus:border-primary focus:ring-2 focus:ring-orange-200 focus:outline-none transition shadow-sm" />
+                        <input type="text" maxlength="1" class="otp w-12 h-14 sm:w-14 sm:h-16 text-center text-2xl font-bold border border-gray-300 rounded-xl focus:border-primary focus:ring-2 focus:ring-orange-200 focus:outline-none transition shadow-sm" />
+                    </div>
+
+                    <button type="submit"
+                            class="w-full h-14 bg-orange-500 text-white rounded-xl text-lg font-semibold hover:bg-orange-600 focus:ring-4 focus:ring-orange-200 transition shadow-lg shadow-orange-500/30">
+                        Tiếp theo
+                    </button>
+
+                </form>
+
+                <div class="mt-8 text-center text-sm text-gray-500 flex flex-col items-center">
+                    <div>
+                        Chưa nhận được mã? 
+                        <a href="javascript:void(0)" id="resendResetBtn" class="font-semibold text-primary hover:text-primary-hover hover:underline ml-1">Gửi lại mã</a>
+                    </div>
+                    <span id="resendMessage" class="text-sm mt-3 hidden"></span>
+                </div>
+
+            </div>
+
+        </div>
+
+        <!-- RIGHT SIDE IMAGE -->
+        <div class="hidden lg:block lg:w-1/2 relative overflow-hidden bg-slate-900">
+             <img src="/images/otp/otp1.jpg"
+                 class="absolute inset-0 w-full h-full object-cover opacity-60"
+                 alt="RoomHub OTP" />
+            
+            <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent"></div>
+
+            <div class="absolute bottom-20 left-16 text-white max-w-lg">
+                <span class="px-3 py-1 rounded-full bg-primary/20 border border-primary/30 text-primary text-xs font-bold uppercase tracking-wider mb-4 inline-block">
+                    Xác minh bảo mật
+                </span>
+                <h2 class="text-4xl font-bold mb-4">
+                    Xác minh bảo mật
+                </h2>
+                <p class="text-lg text-white/80">
+                    Chúng tôi bảo vệ phiên đặt lại mật khẩu của bạn bằng mã OTP 6 số để đảm bảo tính an toàn tối đa cho tài khoản RoomHub.
+                </p>
+            </div>
+
+        </div>
+
+    </div>
+
+    @* Sử dụng logic OTP từ otp.js *@
+    <script src="~/js/otp.js" asp-append-version="true"></script>
+    
+    <script>
+        // Override logic resend cho Reset Password Flow vì nó dùng action khác
+        const resendResetBtn = document.getElementById("resendResetBtn");
+        const resendMsg = document.getElementById("resendMessage");
+        const emailInput = document.getElementById("Email");
+
+        if (resendResetBtn && emailInput) {
+            resendResetBtn.addEventListener("click", async function (e) {
+                e.preventDefault();
+                if (resendResetBtn.classList.contains("pointer-events-none")) return;
+
+                const email = emailInput.value;
+                
+                resendResetBtn.textContent = "Đang gửi...";
+                resendResetBtn.classList.add("pointer-events-none", "text-gray-400");
+                resendMsg.classList.add("hidden");
+
+                try {
+                    const response = await fetch('@Url.Action("ResendForgotPasswordOtp", "Auth")', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]')?.value ?? ''
+                        },
+                        body: JSON.stringify({ email: email })
+                    });
+
+                    const data = await response.json();
+                    resendMsg.textContent = data.message;
+                    resendMsg.classList.remove("hidden");
+
+                    if (data.success) {
+                        resendMsg.classList.add("text-green-600");
+                        let timeLeft = 60;
+                        const timer = setInterval(() => {
+                            timeLeft--;
+                            resendResetBtn.textContent = `Gửi lại sau ${timeLeft}s`;
+                            if (timeLeft <= 0) {
+                                clearInterval(timer);
+                                resendResetBtn.textContent = "Gửi lại mã";
+                                resendResetBtn.classList.remove("pointer-events-none", "text-gray-400");
+                            }
+                        }, 1000);
+                    } else {
+                        resendMsg.classList.add("text-red-500");
+                        resendResetBtn.textContent = "Gửi lại mã";
+                        resendResetBtn.classList.remove("pointer-events-none", "text-gray-400");
+                    }
+                } catch (error) {
+                    resendMsg.textContent = "Lỗi kết nối.";
+                    resendMsg.classList.remove("hidden");
+                    resendMsg.classList.add("text-red-500");
+                    resendResetBtn.textContent = "Gửi lại mã";
+                    resendResetBtn.classList.remove("pointer-events-none", "text-gray-400");
+                }
+            });
+        }
+    </script>
+
+</body>
+
+</html>

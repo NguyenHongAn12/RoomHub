@@ -1,4 +1,4 @@
-﻿using Domain.Entities;
+using Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using System;
@@ -26,6 +26,10 @@ namespace Infrastructure.Persistence.Configurations
             builder.Property(r => r.BasePrice).HasColumnType("decimal(18,2)").IsRequired();
             builder.Property(r => r.Description).HasMaxLength(1024);
             builder.Property(r => r.IsFurnished).HasDefaultValue(true);
+            
+            // Post properties
+            builder.Property(r => r.LandlordId).IsRequired();
+            builder.Property(r => r.Title).HasMaxLength(200).IsRequired();
             builder.Property(r => r.Status)
                 .HasConversion<string>()
                 .HasColumnType("varchar(20)")
@@ -37,6 +41,11 @@ namespace Infrastructure.Persistence.Configurations
                 .WithMany(f => f.Rooms)
                 .HasForeignKey(r => r.FloorId)
                 .OnDelete(DeleteBehavior.Cascade);
+
+            builder.HasOne(r => r.Landlord)
+                .WithMany(u => u.OwnedRooms)
+                .HasForeignKey(r => r.LandlordId)
+                .OnDelete(DeleteBehavior.Restrict);
 
             builder.HasIndex(r => new { r.FloorId, r.RoomNumber })
                 .IsUnique()

@@ -1,0 +1,238 @@
+@model IEnumerable<Application.DTOs.RoomPosts.RoomListViewModel>
+@{
+    ViewData["Title"] = "Property Marketplace";
+}
+    <main class="max-w-7xl mx-auto px-4 py-4">
+        <div class="bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-slate-200 dark:border-slate-800 p-4 mb-6">
+            <div class="flex items-center gap-3 overflow-x-auto pb-3 hide-scrollbar">
+                <button class="flex items-center gap-2 px-4 py-2 bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-sm font-medium whitespace-nowrap">
+                    <span class="material-symbols-outlined text-lg">tune</span> Filter
+                </button>
+                <button class="flex items-center gap-2 px-4 py-2 bg-black text-white rounded-lg text-sm font-medium whitespace-nowrap">
+                    Buy/Sell <span class="material-symbols-outlined text-xs">expand_more</span>
+                </button>
+                <button class="flex items-center gap-1 px-4 py-2 bg-slate-100 dark:bg-slate-800 border border-transparent rounded-lg text-sm font-medium whitespace-nowrap">
+                    Property Type <span class="material-symbols-outlined text-xs">expand_more</span>
+                </button>
+                <button class="flex items-center gap-1 px-4 py-2 bg-slate-100 dark:bg-slate-800 border border-transparent rounded-lg text-sm font-medium whitespace-nowrap">
+                    Price <span class="material-symbols-outlined text-xs">expand_more</span>
+                </button>
+                <button class="flex items-center gap-1 px-4 py-2 bg-slate-100 dark:bg-slate-800 border border-transparent rounded-lg text-sm font-medium whitespace-nowrap">
+                    Project <span class="material-symbols-outlined text-xs">expand_more</span>
+                </button>
+                <button class="flex items-center gap-1 px-4 py-2 bg-slate-100 dark:bg-slate-800 border border-transparent rounded-lg text-sm font-medium whitespace-nowrap">
+                    Posted By <span class="material-symbols-outlined text-xs">expand_more</span>
+                </button>
+                <div class="h-6 w-px bg-slate-300 dark:bg-slate-700 mx-2"></div>
+                <button class="text-slate-500 text-sm font-medium hover:text-primary whitespace-nowrap px-2">Reset All</button>
+            </div>
+            <div class="flex items-center gap-2 py-3 border-t border-slate-100 dark:border-slate-800 overflow-x-auto hide-scrollbar">
+                <span class="text-xs font-bold text-slate-400 uppercase tracking-wider mr-2">Regions:</span>
+                <button class="px-4 py-1.5 border border-slate-200 rounded-full text-sm whitespace-nowrap hover:border-primary hover:text-primary transition">Ho Chi Minh City</button>
+                <button class="px-4 py-1.5 border border-slate-200 rounded-full text-sm whitespace-nowrap hover:border-primary hover:text-primary transition">Binh Duong</button>
+                <button class="px-4 py-1.5 border border-slate-200 rounded-full text-sm whitespace-nowrap hover:border-primary hover:text-primary transition">Hanoi</button>
+                <button class="px-4 py-1.5 border border-slate-200 rounded-full text-sm whitespace-nowrap hover:border-primary hover:text-primary transition">Da Nang</button>
+                <button class="flex items-center gap-1 px-4 py-1.5 border border-slate-200 rounded-full text-sm whitespace-nowrap hover:border-primary hover:text-primary transition">
+                    <span class="material-symbols-outlined text-sm">my_location</span> Near me
+                </button>
+            </div>
+            <div class="flex items-center gap-12 py-4 border-t border-slate-100 dark:border-slate-800 justify-start overflow-x-auto hide-scrollbar">
+                <button class="flex flex-col items-center gap-2 min-w-[80px] group">
+                    <div class="w-12 h-12 rounded-xl bg-slate-50 flex items-center justify-center group-hover:bg-orange-50 group-hover:text-primary transition text-slate-600">
+                        <span class="material-symbols-outlined text-3xl">apartment</span>
+                    </div>
+                    <span class="text-xs font-semibold text-slate-600 group-hover:text-primary">Apartment</span>
+                </button>
+                <button class="flex flex-col items-center gap-2 min-w-[80px] group">
+                    <div class="w-12 h-12 rounded-xl bg-slate-50 flex items-center justify-center group-hover:bg-orange-50 group-hover:text-primary transition text-slate-600">
+                        <span class="material-symbols-outlined text-3xl">home</span>
+                    </div>
+                    <span class="text-xs font-semibold text-slate-600 group-hover:text-primary">House</span>
+                </button>
+                <button class="flex flex-col items-center gap-2 min-w-[80px] group">
+                    <div class="w-12 h-12 rounded-xl bg-slate-50 flex items-center justify-center group-hover:bg-orange-50 group-hover:text-primary transition text-slate-600">
+                        <span class="material-symbols-outlined text-3xl">landscape</span>
+                    </div>
+                    <span class="text-xs font-semibold text-slate-600 group-hover:text-primary">Land</span>
+                </button>
+                <button class="flex flex-col items-center gap-2 min-w-[80px] group">
+                    <div class="w-12 h-12 rounded-xl bg-slate-50 flex items-center justify-center group-hover:bg-orange-50 group-hover:text-primary transition text-slate-600">
+                        <span class="material-symbols-outlined text-3xl">business_center</span>
+                    </div>
+                    <span class="text-xs font-semibold text-slate-600 group-hover:text-primary">Office</span>
+                </button>
+            </div>
+        </div>
+        <div class="grid grid-cols-12 gap-6">
+            <div class="col-span-12 lg:col-span-8 space-y-6">
+                <section class="bg-white dark:bg-slate-900 p-4 rounded-xl shadow-sm overflow-hidden border border-slate-100">
+                    <div class="flex justify-between items-center mb-4">
+                        <h2 class="font-bold flex items-center gap-2">
+                            <span class="material-symbols-outlined text-primary">play_circle</span>
+                            RoomHub Shorts
+                        </h2>
+                        <a class="text-xs font-semibold text-primary hover:underline" href="#">View all</a>
+                    </div>
+                    <div class="flex gap-4 overflow-x-auto hide-scrollbar pb-2">
+                        <div class="flex-shrink-0 w-32 aspect-[9/16] relative rounded-lg overflow-hidden group cursor-pointer">
+                            <img alt="Property Reel" class="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition duration-500" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDH7EJIzPiZUExORapJEGMQJUwsxmutuQt-8QKNkwROD6SgpHB3GhI7SNmL04po7eKV8Zu5Ju0OBDYx9F2PFnFo7ZePQ_unqM16ZP3womgRq46QCn_N3i5AsrCvbahczhMf1_JrV8vlY9wVeyUm5PryxrVccFTMcdgarXirw11izYy8kyXR9BcfvUGyxIfGC3Q3MjBtzyeJQs3MhUA3frSHvh2fAyzlLQ6g2kbKBAY92DvrYakGuu0ROuAvHaGAiT4G4rZyzainAV0" />
+                            <div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent flex flex-col justify-end p-2">
+                                <span class="text-[10px] text-white font-medium">Modern Villas</span>
+                            </div>
+                        </div>
+                        <div class="flex-shrink-0 w-32 aspect-[9/16] relative rounded-lg overflow-hidden group cursor-pointer">
+                            <img alt="Property Reel" class="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition duration-500" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBInMbCpI7o4moy8Fe4eUVv6OnN3NEYlPWS1iyZJ3bVA-8QBzVg29Y6hqz5NBoPEKR3jziAVYeHF2ZolJUDaTMQX9HqdPBKccyCMjKk3WoY0Iy3uncEy9FR-6JnfzwG5dMMiITG0XfK98J6hf2VPCAT_kGa1_ecxcbdZ0_QJvVDc8XpVqfOqBocdWL4kvTNT9zaPbnvyRls91Bpy2x8JrYXT9JFxVjrQ_9-kPB6hmCJDxcJfRTMMTGI_rhShoIlCPdRGSJ2VNGbV48" />
+                            <div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent flex flex-col justify-end p-2">
+                                <span class="text-[10px] text-white font-medium">Urban Penthouses</span>
+                            </div>
+                        </div>
+                        <div class="flex-shrink-0 w-32 aspect-[9/16] relative rounded-lg overflow-hidden group cursor-pointer">
+                            <img alt="Property Reel" class="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition duration-500" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBu8ErIlGYBAW3i9fhNKM0PAXHeOC1aUJc15Pxmy0YuOGykZBr949oTOMZBDUdCJdiwGXYd6sjj84cBLcYJDaanDY6dIot0APfKsm29WTCJ0hvwum9yZACq_Pi_muQQmpVdpnJuD-DAWC-k5wsA9XhvzFlzs1z4tRBFEgNtJKehhr2ch953uC0YWvlVeagfMqdtbgh13U94hJsH2D6EXk2INcN9v96POAugprLZPjBPweTQvQKPdd-VnQ-f-P8a4b6pSqkDdaM2BVQ" />
+                            <div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent flex flex-col justify-end p-2">
+                                <span class="text-[10px] text-white font-medium">Studio Tours</span>
+                            </div>
+                        </div>
+                        <div class="flex-shrink-0 w-32 aspect-[9/16] relative rounded-lg overflow-hidden group cursor-pointer">
+                            <img alt="Property Reel" class="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition duration-500" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCOe14usiAK02AFGf631g3-V4_IVJTLelwT-EvjXzWvcE1gpFbCoptKtHNIUv1QgV17ksxg9O6GwBfCM31wLhtgElNXggnuX9_oicJeQKU8sjqeRwtB-9xUx0zYBPezDIAZGeChiJv-40h8Miuvuxub0ueAcdfX_xskaf3vgvORRqfk_25M2V0MFu6hv5AYvyBDPUnTQ1Iszz2T1i2mQWjLX0rVFLdLit6ZDGG8wkj50H0yoM8flw6xrmx4dH8P5P_LH_6OXFqybhs" />
+                            <div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent flex flex-col justify-end p-2">
+                                <span class="text-[10px] text-white font-medium">Garden Homes</span>
+                            </div>
+                        </div>
+                        <div class="flex-shrink-0 w-32 aspect-[9/16] relative rounded-lg overflow-hidden group cursor-pointer">
+                            <img alt="Property Reel" class="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition duration-500" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDG_pL7s5NmqRPQ0q9dBhGrgj4gHetI_Ik8PIMrOddtklT1OqH0wbz5BpBLISdCg3U_wPTItzDz3-NdvrKHicCvw8cDXQLXdKRsGCFiZAuGfNpQMrmoHWRc_OpdYCS-UBZmEys-oIxSX-VKs9bnZqYiY6ztpwnJz31z_wTAYnMFjWP8V6JVs6Oovo_RMHJeh7zUKeZCRqxeasoZQtJJBLiLH2P4cb0fsRm4wkPrECE3DUrfonCFtMW3Cz60ylQ9P87nCQUzD7-axlo" />
+                            <div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent flex flex-col justify-end p-2">
+                                <span class="text-[10px] text-white font-medium">Beachfront</span>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+                <div class="space-y-4">
+                    @if (Model != null && Model.Any())
+                    {
+                        foreach (var item in Model)
+                        {
+                            <div class="bg-white dark:bg-slate-900 rounded-xl shadow-sm flex flex-col md:flex-row overflow-hidden group cursor-pointer hover:shadow-md transition border border-slate-100">
+                                <div class="md:w-72 h-48 md:h-auto overflow-hidden relative">
+                                    <img alt="@item.Title" class="w-full h-full object-cover group-hover:scale-105 transition duration-500" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAIyzXG4Y1l8UHabQUlbLLXu93616OZ2rWZdqfHk7YoN9koc7TX0kCZ2eSt0qfkD4UwHBBmwWH8XeJ2Kec8weBQ7f9rb-IRzo3NstQ9rP0YtaTy1t37SQod0n354EM5LOQV6-u4YddEjWcow5DzBU5oiUvSdB6QK-WcDauq_n3jOy3R41-yBMXB_vRiy--1vTdA12NsxepsZj1r2VC0bBxKIs3ROL5V8_1FxU2EzCuyRJGZ2SoFQjoduY4NhOvKhX3djUfBS7Oo6JY" />
+                                    @{
+                                        var badgeClass = item.Status switch
+                                        {
+                                            Domain.Enums.RoomStatus.Active => "bg-success",
+                                            Domain.Enums.RoomStatus.Hidden => "bg-secondary",
+                                            Domain.Enums.RoomStatus.Available => "bg-info text-dark",
+                                            Domain.Enums.RoomStatus.Occupied => "bg-primary",
+                                            _ => "bg-warning text-dark"
+                                        };
+                                    }
+                                    <span class="absolute top-2 left-2 @badgeClass text-white text-[10px] px-2 py-0.5 rounded font-bold uppercase tracking-wide">@item.Status</span>
+                                </div>
+                                <div class="flex-1 p-4 flex flex-col justify-between">
+                                    <div>
+                                        <h3 class="font-bold text-lg leading-snug group-hover:text-primary transition line-clamp-2 hover:underline">
+                                            <a asp-action="Details" asp-route-id="@item.Id">@item.Title</a>
+                                        </h3>
+                                        <div class="flex gap-4 mt-2 text-sm text-slate-500 dark:text-slate-400">
+                                            <span class="flex items-center gap-1"><span class="material-symbols-outlined text-sm">meeting_room</span> @item.RoomNumber</span>
+                                            <span class="flex items-center gap-1"><span class="material-symbols-outlined text-sm">straighten</span> @(item.SurfaceArea?.ToString("0.##") ?? "N/A") m²</span>
+                                            <span class="flex items-center gap-1"><span class="material-symbols-outlined text-sm">location_on</span> @item.Address</span>
+                                        </div>
+                                    </div>
+                                    <div class="flex justify-between items-end mt-4">
+                                        <div>
+                                            <p class="text-red-600 font-bold text-xl">@item.BasePrice.ToString("C")</p>
+                                            <p class="text-xs text-slate-400">Posted: @item.CreatedAt.ToLocalTime().ToString("MMM dd, yyyy")</p>
+                                        </div>
+                                        <div class="flex items-center gap-3">
+                                            <div class="flex items-center gap-2">
+                                                <div class="w-6 h-6 rounded-full bg-primary/20 flex items-center justify-center text-[10px] font-bold text-primary">
+                                                    <span class="material-symbols-outlined text-[14px]">check_circle</span>
+                                                </div>
+                                                <span class="text-xs font-medium text-slate-600 dark:text-slate-300">@item.AmenityCount Amenities</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        }
+                    }
+                    else
+                    {
+                        <div class="bg-white dark:bg-slate-900 rounded-xl shadow-sm p-8 text-center border border-slate-100 dark:border-slate-800">
+                            <span class="material-symbols-outlined text-4xl text-slate-300 mb-2">inbox</span>
+                            <h3 class="text-lg font-bold text-slate-700 dark:text-slate-200">No properties found</h3>
+                            <p class="text-slate-500 text-sm mt-1 mb-4">Currently there are no properties available.</p>
+                            <a asp-action="Create" class="inline-flex items-center gap-2 bg-primary text-white px-5 py-2 rounded-lg text-sm font-bold shadow-sm hover:opacity-90 transition">
+                                <span class="material-symbols-outlined text-sm">add</span> Post Ad
+                            </a>
+                        </div>
+                    }
+                </div>
+            </div>
+            <aside class="hidden lg:col-span-4 lg:block space-y-6">
+                <div class="bg-white dark:bg-slate-900 rounded-xl p-4 shadow-sm border border-slate-100 dark:border-slate-800">
+                    <h3 class="font-bold mb-4 flex items-center justify-between">
+                        Property Hub
+                        <span class="material-symbols-outlined text-slate-400 text-sm">expand_more</span>
+                    </h3>
+                    <div class="space-y-3">
+                        <a class="block p-3 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-800 border border-transparent hover:border-slate-100 dark:hover:border-slate-700 transition" href="#">
+                            <div class="flex justify-between items-center">
+                                <span class="text-sm font-medium">Ho Chi Minh City</span>
+                                <span class="text-xs text-slate-400">(1,240)</span>
+                            </div>
+                        </a>
+                        <a class="block p-3 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-800 transition" href="#">
+                            <div class="flex justify-between items-center">
+                                <span class="text-sm font-medium">Hanoi Capital</span>
+                                <span class="text-xs text-slate-400">(850)</span>
+                            </div>
+                        </a>
+                        <button class="w-full text-center py-2 text-xs font-bold text-primary hover:underline">Show all regions</button>
+                    </div>
+                </div>
+            </aside>
+        </div>
+        <div class="mt-12 bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-slate-200 dark:border-slate-800 p-8">
+            <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-y-4 gap-x-8">
+                <a class="text-sm text-slate-500 hover:text-primary transition" href="#">Houses for sale with 4 bedrooms</a>
+                <a class="text-sm text-slate-500 hover:text-primary transition" href="#">Apartments under 100m2</a>
+                <a class="text-sm text-slate-500 hover:text-primary transition" href="#">Studio apartments for rent</a>
+                <a class="text-sm text-slate-500 hover:text-primary transition" href="#">Cheap land for sale</a>
+                <a class="text-sm text-slate-500 hover:text-primary transition" href="#">Villa for sale in District 7</a>
+                <a class="text-sm text-slate-500 hover:text-primary transition" href="#">Office space for rent</a>
+                <a class="text-sm text-slate-500 hover:text-primary transition" href="#">Shophouse for sale</a>
+                <a class="text-sm text-slate-500 hover:text-primary transition" href="#">Private houses for rent</a>
+                <a class="text-sm text-slate-500 hover:text-primary transition" href="#">Apartments near Metro</a>
+                <a class="text-sm text-slate-500 hover:text-primary transition" href="#">Commercial space for rent</a>
+                <a class="text-sm text-slate-500 hover:text-primary transition" href="#">Land near industrial park</a>
+                <a class="text-sm text-slate-500 hover:text-primary transition" href="#">Townhouses for sale</a>
+                <a class="text-sm text-slate-500 hover:text-primary transition flex items-center gap-1 font-semibold text-slate-900" href="#">
+                    See more <span class="material-symbols-outlined text-sm">expand_more</span>
+                </a>
+            </div>
+        </div>
+    </main>
+    
+    <div class="lg:hidden fixed bottom-0 left-0 right-0 bg-white dark:bg-slate-900 border-t border-slate-200 dark:border-slate-800 h-16 flex items-center justify-around px-4 z-50">
+        <button class="flex flex-col items-center gap-0.5 text-primary">
+            <span class="material-symbols-outlined">home</span>
+            <span class="text-[10px] font-medium">Home</span>
+        </button>
+        <button class="flex flex-col items-center gap-0.5 text-slate-400">
+            <span class="material-symbols-outlined">search</span>
+            <span class="text-[10px] font-medium">Explore</span>
+        </button>
+        <button class="flex flex-col items-center gap-0.5 text-slate-400">
+            <span class="material-symbols-outlined">add_circle</span>
+            <span class="text-[10px] font-medium">Post</span>
+        </button>
+        <button class="flex flex-col items-center gap-0.5 text-slate-400">
+            <span class="material-symbols-outlined">favorite</span>
+            <span class="text-[10px] font-medium">Saved</span>
+        </button>
+        <button class="flex flex-col items-center gap-0.5 text-slate-400">
+            <span class="material-symbols-outlined">account_circle</span>
+            <span class="text-[10px] font-medium">Profile</span>
+        </button>
+    </div>
+

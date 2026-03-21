@@ -7,14 +7,21 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Folder Include="DTOs\" />
-    <Folder Include="Interfaces\Services\" />
-    <Folder Include="Interfaces\Repositories\" />
-    <Folder Include="Services\" />
+
+    <ProjectReference Include="..\Domain\Domain.csproj" />
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Domain\Domain.csproj" />
+    <Folder Include="Interfaces\Repositories\" />
+    <Folder Include="Services\" />
+
+    <Folder Include="DTOs\" />
+
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.Authentication.Facebook" Version="8.0.24" />
+    <PackageReference Include="Microsoft.AspNetCore.Authentication.Google" Version="8.0.24" />
   </ItemGroup>
 
 </Project>
