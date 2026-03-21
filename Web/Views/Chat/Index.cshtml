@@ -1,0 +1,212 @@
+﻿@model List<Domain.Entities.Message>
+@{
+    ViewData["Title"] = "Tin nhắn - RoomHub";
+    var currentUserId = ViewBag.CurrentUserId as string;
+    var currentReceiverId = ViewBag.CurrentReceiverId as string;
+}
+
+<style>
+    /* Tuỳ chỉnh thanh cuộn tinh tế */
+    .chat-scroll {
+        overflow-y: auto;
+        scrollbar-width: thin;
+        scrollbar-color: #cbd5e1 transparent;
+    }
+    .chat-scroll::-webkit-scrollbar { width: 6px; }
+    .chat-scroll::-webkit-scrollbar-track { background: transparent; }
+    .chat-scroll::-webkit-scrollbar-thumb { background-color: #cbd5e1; border-radius: 20px; }
+    
+    /* Hiệu ứng hiện mượt mà cho tin nhắn mới */
+    @@keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+    .animation-fade-in { animation: fadeIn 0.3s ease-out forwards; }
+</style>
+
+<div class="container mx-auto py-6 px-4 max-w-6xl">
+    <div class="flex flex-col md:flex-row h-[calc(100vh-140px)] min-h-[600px] bg-white border border-slate-200 rounded-2xl shadow-lg overflow-hidden">
+        
+        <div class="w-full md:w-1/3 lg:w-1/4 border-r border-slate-200 flex flex-col bg-white">
+            <div class="p-4 border-b border-slate-200 bg-slate-50">
+                <h5 class="text-xl font-bold text-slate-800 mb-4">Trò chuyện</h5>
+                <div class="relative">
+                    <span class="material-symbols-outlined absolute left-3 top-2.5 text-slate-400">search</span>
+                    <input type="text" class="w-full bg-white border border-slate-200 rounded-full py-2 pl-10 pr-4 text-sm focus:outline-none focus:border-orange-500 focus:ring-1 focus:ring-orange-500 transition-all shadow-sm" placeholder="Tìm kiếm...">
+                </div>
+            </div>
+
+            <div class="flex-grow chat-scroll">
+    @{
+        var contacts = ViewBag.Contacts as List<Domain.Entities.ApplicationUser>;
+    }
+
+    @if (contacts == null || !contacts.Any())
+    {
+        <div class="p-6 text-center text-slate-500 text-sm">
+            Chưa có cuộc trò chuyện nào.
+        </div>
+    }
+    else
+    {
+        foreach (var contact in contacts)
+        {
+            bool isActive = (currentReceiverId == contact.Id);
+            <a href="@Url.Action("Index", "Chat", new { receiverId = contact.Id })" class="block">
+                <div class="p-3 flex items-center border-b border-slate-100 cursor-pointer transition-colors @(isActive ? "bg-orange-50 border-l-4 border-l-orange-500" : "hover:bg-slate-50")">
+                    <div class="relative flex-shrink-0">
+                        <img src="https://ui-avatars.com/api/?name=@contact.FullName&background=f97316&color=fff" class="w-12 h-12 rounded-full object-cover" alt="Avatar">
+                    </div>
+                    <div class="ml-3 overflow-hidden flex-grow">
+                        <h6 class="text-sm font-bold text-slate-800 truncate">@contact.FullName</h6>
+                    </div>
+                </div>
+            </a>
+        }
+    }
+</div>
+        </div>
+
+        <div class="w-full md:w-2/3 lg:w-3/4 flex flex-col bg-slate-50 h-full relative">
+            @if (string.IsNullOrEmpty(currentReceiverId))
+            {
+                <div class="flex-grow flex flex-col items-center justify-center text-slate-400">
+                    <span class="material-symbols-outlined text-7xl opacity-20 mb-4">forum</span>
+                    <h5 class="text-lg font-medium text-slate-500">Chọn một cuộc trò chuyện để bắt đầu</h5>
+                    <p class="text-sm mt-1">Kết nối với chủ trọ hoặc người thuê của bạn</p>
+                </div>
+            }
+            else
+            {
+                <div class="p-4 border-b border-slate-200 bg-white flex items-center justify-between shadow-sm z-10">
+                    <div class="flex items-center">
+    @{
+        // Lấy tên thật từ Controller truyền sang, nếu lỗi thì để mặc định
+        var receiverName = ViewBag.CurrentReceiverName as string ?? "Người dùng ẩn danh";
+    }
+    
+    <img src="https://ui-avatars.com/api/?name=@Uri.EscapeDataString(receiverName)&background=0284c7&color=fff" class="w-11 h-11 rounded-full shadow-sm" alt="Avatar">
+    
+    <div class="ml-3">
+        <h6 class="text-base font-bold text-slate-800">@receiverName</h6>
+        <div class="flex items-center text-xs text-green-500 font-medium mt-0.5">
+            <span class="w-2 h-2 bg-green-500 rounded-full mr-1.5"></span>
+            Đang hoạt động
+        </div>
+    </div>
+</div>
+                    <div class="flex gap-2">
+                        <button class="w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center text-slate-600 hover:bg-slate-200 hover:text-orange-500 transition"><span class="material-symbols-outlined text-xl">call</span></button>
+                        <button class="w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center text-slate-600 hover:bg-slate-200 hover:text-orange-500 transition"><span class="material-symbols-outlined text-xl">info</span></button>
+                    </div>
+                </div>
+
+                <div class="flex-grow p-4 chat-scroll flex flex-col gap-4" id="chatBox">
+                    @if (Model != null && Model.Any())
+                    {
+                        foreach (var msg in Model)
+                        {
+                            bool isMyMsg = msg.SenderId == currentUserId;
+                            <div class="flex flex-col @(isMyMsg ? "items-end" : "items-start") w-full">
+                                <div class="max-w-[75%] px-4 py-2.5 rounded-2xl text-sm shadow-sm @(isMyMsg ? "bg-orange-500 text-white rounded-br-sm" : "bg-white text-slate-700 border border-slate-200 rounded-bl-sm")">
+                                    @msg.Content
+                                </div>
+                                <span class="text-[11px] text-slate-400 mt-1 px-1">@msg.SentAt.ToString("HH:mm")</span>
+                            </div>
+                        }
+                    }
+                    else
+                    {
+                        <div class="text-center text-slate-400 m-auto text-sm" id="emptyChatMsg">
+                            Chưa có tin nhắn nào. Hãy gửi lời chào!
+                        </div>
+                    }
+                </div>
+
+                <div class="p-4 bg-white border-t border-slate-200">
+                    <div class="flex items-center bg-slate-100 rounded-full p-1 border border-slate-200 focus-within:border-orange-300 focus-within:ring-2 focus-within:ring-orange-100 transition-all">
+                        <button class="w-10 h-10 flex items-center justify-center text-slate-500 hover:text-orange-500 transition"><span class="material-symbols-outlined">add_circle</span></button>
+                        <button class="w-10 h-10 flex items-center justify-center text-slate-500 hover:text-orange-500 transition"><span class="material-symbols-outlined">image</span></button>
+                        
+                        <input type="text" id="messageInput" class="flex-grow bg-transparent border-none focus:ring-0 text-sm px-2 text-slate-700 placeholder-slate-400 shadow-none outline-none" placeholder="Nhập tin nhắn của bạn..." autocomplete="off">
+                        
+                        <button id="sendButton" class="w-10 h-10 rounded-full bg-orange-500 hover:bg-orange-600 flex items-center justify-center text-white transition-colors shadow-sm ml-1 flex-shrink-0">
+                            <span class="material-symbols-outlined text-lg" style="transform: rotate(-30deg); margin-left: 4px; margin-bottom: 2px;">send</span>
+                        </button>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/8.0.0/signalr.min.js"></script>
+    
+    <script>
+        const currentUserId = "@currentUserId";
+        const currentReceiverId = "@currentReceiverId";
+
+        function scrollToBottom() {
+            const chatBox = document.getElementById("chatBox");
+            if (chatBox) { chatBox.scrollTop = chatBox.scrollHeight; }
+        }
+
+        scrollToBottom();
+
+        if (currentReceiverId) {
+            const connection = new signalR.HubConnectionBuilder()
+                .withUrl("/chathub")
+                .withAutomaticReconnect()
+                .build();
+
+            connection.on("ReceiveMessage", function (senderId, message, time) {
+                const chatBox = document.getElementById("chatBox");
+                if (!chatBox) return;
+                
+                const emptyMsg = document.getElementById('emptyChatMsg');
+                if (emptyMsg) emptyMsg.remove();
+
+                let msgHtml = "";
+                let isMyMsg = (senderId === currentUserId);
+
+                if (isMyMsg || senderId === currentReceiverId) {
+                    msgHtml = `
+                    <div class="flex flex-col ${isMyMsg ? 'items-end' : 'items-start'} w-full animation-fade-in">
+                        <div class="max-w-[75%] px-4 py-2.5 rounded-2xl text-sm shadow-sm ${isMyMsg ? 'bg-orange-500 text-white rounded-br-sm' : 'bg-white text-slate-700 border border-slate-200 rounded-bl-sm'}">
+                            ${message}
+                        </div>
+                        <span class="text-[11px] text-slate-400 mt-1 px-1">${time}</span>
+                    </div>`;
+                    
+                    chatBox.insertAdjacentHTML('beforeend', msgHtml);
+                    scrollToBottom();
+                }
+            });
+
+            connection.start().catch(err => console.error("SignalR Lỗi: ", err.toString()));
+
+            document.getElementById("sendButton").addEventListener("click", function (event) {
+                sendMessage();
+                event.preventDefault();
+            });
+
+            document.getElementById("messageInput").addEventListener("keypress", function (e) {
+                if (e.key === 'Enter') {
+                    sendMessage();
+                    e.preventDefault();
+                }
+            });
+
+            function sendMessage() {
+                const messageInput = document.getElementById("messageInput");
+                const message = messageInput.value.trim();
+                
+                if(message !== "") {
+                    connection.invoke("SendMessage", currentReceiverId, message)
+                        .catch(err => console.error(err.toString()));
+                    
+                    messageInput.value = "";
+                    messageInput.focus();
+                }
+            }
+        }
+    </script>
+}

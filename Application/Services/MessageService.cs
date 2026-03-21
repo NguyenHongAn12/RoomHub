@@ -38,5 +38,10 @@ namespace Application.Services
         {
             return await _messageRepository.GetConversationAsync(userId1, userId2);
         }
+
+        public async Task<List<ApplicationUser>> GetContactsAsync(string currentUserId)
+        {
+            return await _messageRepository.GetContactsAsync(currentUserId);
+        }
     }
 }

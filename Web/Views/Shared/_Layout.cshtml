@@ -45,9 +45,12 @@
                             <span class="material-symbols-outlined text-2xl">favorite</span>
                         </a>
                     }
-                    <button class="p-2 text-slate-700 hover:text-primary transition">
-                        <span class="material-symbols-outlined text-2xl">chat</span>
-                    </button>
+                    @if (User.Identity.IsAuthenticated)
+                    {
+                        <a asp-controller="Chat" asp-action="Index" class="p-2 text-slate-700 hover:text-primary transition" title="Tin nhắn">
+                            <span class="material-symbols-outlined text-2xl">chat</span>
+                        </a>
+                    }
                     <button class="p-2 text-slate-700 hover:text-primary transition">
                         <span class="material-symbols-outlined text-2xl">notifications</span>
                     </button>

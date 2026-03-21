@@ -32,5 +32,19 @@ namespace Infrastructure.Repositories
                 .OrderBy(m => m.SentAt)
                 .ToListAsync();
         }
+        public async Task<List<ApplicationUser>> GetContactsAsync(string currentUserId)
+        {
+            // Tìm tất cả ID của những người từng chat với user hiện tại
+            var contactIds = await _context.Messages
+                .Where(m => m.SenderId == currentUserId || m.ReceiverId == currentUserId)
+                .Select(m => m.SenderId == currentUserId ? m.ReceiverId : m.SenderId)
+                .Distinct()
+                .ToListAsync();
+
+            // Truy vấn ra thông tin User từ danh sách ID ở trên
+            return await _context.Users
+                .Where(u => contactIds.Contains(u.Id))
+                .ToListAsync();
+        }
     }
 }
