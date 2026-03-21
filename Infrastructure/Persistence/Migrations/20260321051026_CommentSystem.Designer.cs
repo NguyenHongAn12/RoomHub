@@ -4,6 +4,7 @@ using Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Infrastructure.Persistence.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260321051026_CommentSystem")]
+    partial class CommentSystem
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -208,8 +211,8 @@ namespace Infrastructure.Persistence.Migrations
                         {
                             Id = "test-user-id-123",
                             AccessFailedCount = 0,
-                            ConcurrencyStamp = "ca4371a1-0e59-4051-9fa9-2f286c22133d",
-                            CreatedAt = new DateTime(2026, 3, 21, 7, 45, 41, 295, DateTimeKind.Utc).AddTicks(454),
+                            ConcurrencyStamp = "bcad55a5-5579-4998-ad95-e6ad584624db",
+                            CreatedAt = new DateTime(2026, 3, 21, 5, 10, 24, 706, DateTimeKind.Utc).AddTicks(6175),
                             Email = "owner@roomhub.com",
                             EmailConfirmed = true,
                             FullName = "Chủ Trọ Test",
@@ -222,7 +225,7 @@ namespace Infrastructure.Persistence.Migrations
                             PasswordHash = "AQAAAAEAACcQAAAAE...",
                             PhoneNumber = "0123456789",
                             PhoneNumberConfirmed = false,
-                            SecurityStamp = "eb7d375c-9301-4aee-8140-3994eea223d3",
+                            SecurityStamp = "a5279342-6fa1-4be6-8655-fe01a6277608",
                             TwoFactorEnabled = false,
                             UserName = "owner_test"
                         });
@@ -879,9 +882,6 @@ namespace Infrastructure.Persistence.Migrations
                     b.Property<string>("OwnerId")
                         .HasColumnType("nvarchar(450)");
 
-                    b.Property<int?>("ParentReviewId")
-                        .HasColumnType("int");
-
                     b.Property<byte?>("Rating")
                         .HasColumnType("tinyint");
 
@@ -899,9 +899,6 @@ namespace Infrastructure.Persistence.Migrations
 
                     b.HasIndex("OwnerId")
                         .HasDatabaseName("IX_Reviews_OwnerId");
-
-                    b.HasIndex("ParentReviewId")
-                        .HasDatabaseName("IX_Reviews_ParentReviewId");
 
                     b.HasIndex("RoomId")
                         .HasDatabaseName("IX_Reviews_RoomId");
@@ -1452,24 +1449,6 @@ namespace Infrastructure.Persistence.Migrations
                     b.ToTable("AspNetUserTokens", (string)null);
                 });
 
-            modelBuilder.Entity("RoomHub.Domain.Entities.FavoriteRoom", b =>
-                {
-                    b.Property<string>("UserId")
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<int>("RoomId")
-                        .HasColumnType("int");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.HasKey("UserId", "RoomId");
-
-                    b.HasIndex("RoomId");
-
-                    b.ToTable("FavoriteRooms", (string)null);
-                });
-
             modelBuilder.Entity("Domain.Entities.AuditLog", b =>
                 {
                     b.HasOne("Domain.Entities.ApplicationUser", "User")
@@ -1680,11 +1659,6 @@ namespace Infrastructure.Persistence.Migrations
                         .HasForeignKey("OwnerId")
                         .OnDelete(DeleteBehavior.NoAction);
 
-                    b.HasOne("Domain.Entities.Review", "ParentReview")
-                        .WithMany("Replies")
-                        .HasForeignKey("ParentReviewId")
-                        .OnDelete(DeleteBehavior.Restrict);
-
                     b.HasOne("Domain.Entities.Room", "Room")
                         .WithMany("Reviews")
                         .HasForeignKey("RoomId")
@@ -1702,8 +1676,6 @@ namespace Infrastructure.Persistence.Migrations
                         .IsRequired();
 
                     b.Navigation("Owner");
-
-                    b.Navigation("ParentReview");
 
                     b.Navigation("Room");
 
@@ -1871,25 +1843,6 @@ namespace Infrastructure.Persistence.Migrations
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("RoomHub.Domain.Entities.FavoriteRoom", b =>
-                {
-                    b.HasOne("Domain.Entities.Room", "Room")
-                        .WithMany()
-                        .HasForeignKey("RoomId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("Domain.Entities.ApplicationUser", "User")
-                        .WithMany()
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Room");
-
-                    b.Navigation("User");
-                });
-
             modelBuilder.Entity("Domain.Entities.Amenity", b =>
                 {
                     b.Navigation("RoomAmenities");
@@ -1954,11 +1907,6 @@ namespace Infrastructure.Persistence.Migrations
                     b.Navigation("InvoiceItems");
 
                     b.Navigation("Payments");
-                });
-
-            modelBuilder.Entity("Domain.Entities.Review", b =>
-                {
-                    b.Navigation("Replies");
                 });
 
             modelBuilder.Entity("Domain.Entities.Room", b =>
