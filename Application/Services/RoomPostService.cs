@@ -9,16 +9,25 @@ namespace Application.Services
     {
         private readonly IRoomPostRepository _repository;
         private readonly ICloudinaryService _cloudinaryService;
-
-        public RoomPostService(IRoomPostRepository repository, ICloudinaryService cloudinaryService)
+        private readonly IFavoriteRoomRepository _favoriteRepo;
+        public RoomPostService(IRoomPostRepository repository, ICloudinaryService cloudinaryService, IFavoriteRoomRepository favoriteRepo)
         {
             _repository = repository;
             _cloudinaryService = cloudinaryService;
+            _favoriteRepo = favoriteRepo;
         }
 
-        public async Task<IEnumerable<RoomListViewModel>> GetAllRoomsAsync()
+        public async Task<IEnumerable<RoomListViewModel>> GetAllRoomsAsync(string? currentUserId = null)
         {
             var rooms = await _repository.GetAllActiveAsync();
+
+            // Lấy danh sách ID phòng đã tim nếu user đã đăng nhập
+            List<int> favoriteRoomIds = new List<int>();
+            if (!string.IsNullOrEmpty(currentUserId))
+            {
+                favoriteRoomIds = await _favoriteRepo.GetFavoriteRoomIdsAsync(currentUserId);
+            }
+
             return rooms.Select(r => new RoomListViewModel
             {
                 Id = r.Id,
@@ -30,7 +39,10 @@ namespace Application.Services
                 CreatedAt = r.CreatedAt,
                 RoomNumber = r.RoomNumber,
                 RoomType = r.RoomType,
-                AmenityCount = r.RoomAmenities.Count
+                AmenityCount = r.RoomAmenities.Count,
+
+                LandlordId = r.LandlordId ?? string.Empty,
+                IsFavorite = favoriteRoomIds.Contains(r.Id)
             });
         }
 
