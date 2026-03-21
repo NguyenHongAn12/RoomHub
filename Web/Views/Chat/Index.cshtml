@@ -101,16 +101,34 @@
                 <div class="flex-grow p-4 chat-scroll flex flex-col gap-4" id="chatBox">
                     @if (Model != null && Model.Any())
                     {
-                        foreach (var msg in Model)
+                        @foreach (var msg in Model)
                         {
-                            bool isMyMsg = msg.SenderId == currentUserId;
-                            <div class="flex flex-col @(isMyMsg ? "items-end" : "items-start") w-full">
-                                <div class="max-w-[75%] px-4 py-2.5 rounded-2xl text-sm shadow-sm @(isMyMsg ? "bg-orange-500 text-white rounded-br-sm" : "bg-white text-slate-700 border border-slate-200 rounded-bl-sm")">
-                                    @msg.Content
-                                </div>
-                                <span class="text-[11px] text-slate-400 mt-1 px-1">@msg.SentAt.ToString("HH:mm")</span>
-                            </div>
+                        bool isMyMsg = msg.SenderId == currentUserId;
+                        // Kiểm tra xem tin nhắn có phải là ảnh không?
+                        bool isImage = msg.Content.StartsWith("[IMG]");
+    
+                        // Tùy chỉnh CSS: Nếu là ảnh thì bỏ màu nền và padding đi cho đẹp
+                        string baseClass = "max-w-[75%] rounded-2xl text-sm shadow-sm overflow-hidden";
+                        string styleClass = isMyMsg ? "bg-orange-500 text-white rounded-br-sm" : "bg-white text-slate-700 border border-slate-200 rounded-bl-sm";
+    
+                        if (isImage) {
+                            styleClass = isMyMsg ? "rounded-br-sm" : "border border-slate-200 rounded-bl-sm"; 
                         }
+
+                        <div class="flex flex-col @(isMyMsg ? "items-end" : "items-start") w-full">
+                            <div class="@baseClass @styleClass @(isImage ? "p-0" : "px-4 py-2.5")">
+                                @if (isImage)
+                                {
+                                    <img src="@msg.Content.Substring(5)" class="rounded-xl w-full h-full object-cover cursor-pointer hover:opacity-90 transition" style="max-width: 250px; max-height: 250px;" onclick="window.open(this.src, '_blank')" alt="Ảnh gửi" title="Bấm để xem ảnh lớn" />
+                                }
+                                else
+                                {
+                                    @msg.Content
+                                }
+                            </div>
+                            <span class="text-[11px] text-slate-400 mt-1 px-1">@msg.SentAt.ToString("HH:mm")</span>
+                        </div>
+                    }
                     }
                     else
                     {
@@ -123,7 +141,11 @@
                 <div class="p-4 bg-white border-t border-slate-200">
                     <div class="flex items-center bg-slate-100 rounded-full p-1 border border-slate-200 focus-within:border-orange-300 focus-within:ring-2 focus-within:ring-orange-100 transition-all">
                         <button class="w-10 h-10 flex items-center justify-center text-slate-500 hover:text-orange-500 transition"><span class="material-symbols-outlined">add_circle</span></button>
-                        <button class="w-10 h-10 flex items-center justify-center text-slate-500 hover:text-orange-500 transition"><span class="material-symbols-outlined">image</span></button>
+                        <button type="button" id="btnSelectImage" class="w-10 h-10 flex items-center justify-center text-slate-500 hover:text-orange-500 transition shadow-none border-0">
+    <span class="material-symbols-outlined">image</span>
+</button>
+
+<input type="file" id="imageUploadInput" accept="image/png, image/jpeg, image/jpg" class="hidden" style="display:none;" />
                         
                         <input type="text" id="messageInput" class="flex-grow bg-transparent border-none focus:ring-0 text-sm px-2 text-slate-700 placeholder-slate-400 shadow-none outline-none" placeholder="Nhập tin nhắn của bạn..." autocomplete="off">
                         
@@ -157,6 +179,7 @@
                 .withAutomaticReconnect()
                 .build();
 
+            // 1. NHẬN TIN NHẮN (SIGNALR)
             connection.on("ReceiveMessage", function (senderId, message, time) {
                 const chatBox = document.getElementById("chatBox");
                 if (!chatBox) return;
@@ -164,14 +187,24 @@
                 const emptyMsg = document.getElementById('emptyChatMsg');
                 if (emptyMsg) emptyMsg.remove();
 
-                let msgHtml = "";
                 let isMyMsg = (senderId === currentUserId);
+                let isImage = message.startsWith("[IMG]");
+                
+                // Trích xuất nội dung HTML tùy thuộc vào loại tin nhắn
+                let contentHtml = isImage ? 
+                    `<img src="${message.substring(5)}" class="rounded-xl w-full h-full object-cover cursor-pointer hover:opacity-90 transition" style="max-width: 250px; max-height: 250px;" onclick="window.open(this.src, '_blank')" alt="Ảnh gửi" title="Bấm để xem ảnh lớn" />` : 
+                    message;
+
+                // Tùy chỉnh CSS
+                let baseClass = "max-w-[75%] rounded-2xl text-sm shadow-sm overflow-hidden";
+                let styleClass = isMyMsg ? "bg-orange-500 text-white rounded-br-sm" : "bg-white text-slate-700 border border-slate-200 rounded-bl-sm";
+                if (isImage) { styleClass = isMyMsg ? "rounded-br-sm" : "border border-slate-200 rounded-bl-sm"; }
 
                 if (isMyMsg || senderId === currentReceiverId) {
-                    msgHtml = `
+                    let msgHtml = `
                     <div class="flex flex-col ${isMyMsg ? 'items-end' : 'items-start'} w-full animation-fade-in">
-                        <div class="max-w-[75%] px-4 py-2.5 rounded-2xl text-sm shadow-sm ${isMyMsg ? 'bg-orange-500 text-white rounded-br-sm' : 'bg-white text-slate-700 border border-slate-200 rounded-bl-sm'}">
-                            ${message}
+                        <div class="${baseClass} ${styleClass} ${isImage ? 'p-0' : 'px-4 py-2.5'}">
+                            ${contentHtml}
                         </div>
                         <span class="text-[11px] text-slate-400 mt-1 px-1">${time}</span>
                     </div>`;
@@ -183,18 +216,7 @@
 
             connection.start().catch(err => console.error("SignalR Lỗi: ", err.toString()));
 
-            document.getElementById("sendButton").addEventListener("click", function (event) {
-                sendMessage();
-                event.preventDefault();
-            });
-
-            document.getElementById("messageInput").addEventListener("keypress", function (e) {
-                if (e.key === 'Enter') {
-                    sendMessage();
-                    e.preventDefault();
-                }
-            });
-
+            // 2. GỬI TIN NHẮN (TEXT)
             function sendMessage() {
                 const messageInput = document.getElementById("messageInput");
                 const message = messageInput.value.trim();
@@ -207,6 +229,50 @@
                     messageInput.focus();
                 }
             }
+
+            document.getElementById("sendButton").addEventListener("click", function (e) { sendMessage(); e.preventDefault(); });
+            document.getElementById("messageInput").addEventListener("keypress", function (e) { if (e.key === 'Enter') { sendMessage(); e.preventDefault(); } });
+
+            // ================= 3. LOGIC GỬI HÌNH ẢNH ================= //
+            // Bắt sự kiện bấm nút ảnh
+            document.getElementById("btnSelectImage").addEventListener("click", function () {
+                document.getElementById("imageUploadInput").click();
+            });
+
+            // Bắt sự kiện sau khi chọn file
+            document.getElementById("imageUploadInput").addEventListener("change", async function () {
+                const file = this.files[0];
+                if (!file) return;
+
+                // Reset input để có thể chọn lại ảnh giống hệt
+                this.value = '';
+
+                // Gói data gửi đi
+                const formData = new FormData();
+                formData.append("image", file);
+
+                try {
+                    // Gọi API Upload
+                    const response = await fetch('/Chat/UploadImage', {
+                        method: 'POST',
+                        body: formData
+                    });
+                    
+                    const data = await response.json();
+                    
+                    if (data.success) {
+                        // Gắn tiền tố [IMG] và gửi qua SignalR như một tin nhắn bình thường
+                        const imgMessage = "[IMG]" + data.imageUrl;
+                        connection.invoke("SendMessage", currentReceiverId, imgMessage)
+                            .catch(err => console.error("Lỗi gửi ảnh SignalR:", err.toString()));
+                    } else {
+                        alert("Không thể tải ảnh lên: " + data.message);
+                    }
+                } catch (err) {
+                    console.error(err);
+                    alert("Lỗi hệ thống khi tải ảnh lên.");
+                }
+            });
         }
     </script>
 }
