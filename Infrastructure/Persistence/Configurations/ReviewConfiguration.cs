@@ -1,4 +1,4 @@
-﻿using Domain.Entities;
+using Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using System;
@@ -42,6 +42,13 @@ namespace Infrastructure.Persistence.Configurations
             builder.HasIndex(r => r.RoomId).HasDatabaseName("IX_Reviews_RoomId");
             builder.HasIndex(r => r.OwnerId).HasDatabaseName("IX_Reviews_OwnerId");
             builder.HasIndex(r => r.ServiceId).HasDatabaseName("IX_Reviews_ServiceId");
+
+            builder.HasOne(r => r.ParentReview)
+                .WithMany(p => p.Replies)
+                .HasForeignKey(r => r.ParentReviewId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            builder.HasIndex(r => r.ParentReviewId).HasDatabaseName("IX_Reviews_ParentReviewId");
         }
     }
 }
