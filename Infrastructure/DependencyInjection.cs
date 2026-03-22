@@ -51,6 +51,8 @@ namespace Infrastructure
             services.AddScoped<Application.Interfaces.Services.IRoomPostService, Application.Services.RoomPostService>();
             services.AddScoped<Application.Interfaces.Services.ICloudinaryService, Infrastructure.Services.CloudinaryService>();
 
+            services.AddScoped<Application.Interfaces.Repositories.IFavoriteRoomRepository, Infrastructure.Repositories.FavoriteRoomRepository>();
+            services.AddScoped<Application.Interfaces.Services.IFavoriteRoomService, Application.Services.FavoriteRoomService>();
             // External OAuth Providers
             services.AddAuthentication()
                 .AddGoogle(options =>
@@ -67,6 +69,11 @@ namespace Infrastructure
             services.AddScoped<IMessageRepository, MessageRepository>();
             services.AddScoped<IMessageService, MessageService>();
 
+            services.AddScoped<IReviewRepository, ReviewRepository>();
+            services.AddScoped<IReviewViolationRepository, ReviewViolationRepository>();
+            services.AddScoped<IReviewService, ReviewService>();
+
+            services.AddHttpClient<IGeminiModerationService, GeminiModerationService>();
 
             return services;
         }

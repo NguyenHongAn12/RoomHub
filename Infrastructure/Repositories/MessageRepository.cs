@@ -32,5 +32,37 @@ namespace Infrastructure.Repositories
                 .OrderBy(m => m.SentAt)
                 .ToListAsync();
         }
+        public async Task<List<ApplicationUser>> GetContactsAsync(string currentUserId)
+        {
+            // 1. Lấy ID của những người mà MÌNH ĐÃ GỬI tin nhắn (Truy vấn siêu tốc)
+            var sentToIds = await _context.Messages
+                .AsNoTracking()
+                .Where(m => m.SenderId == currentUserId)
+                .Select(m => m.ReceiverId)
+                .Distinct()
+                .ToListAsync();
+
+            // 2. Lấy ID của những người ĐÃ GỬI CHO MÌNH (Truy vấn siêu tốc)
+            var receivedFromIds = await _context.Messages
+                .AsNoTracking()
+                .Where(m => m.ReceiverId == currentUserId)
+                .Select(m => m.SenderId)
+                .Distinct()
+                .ToListAsync();
+
+            // 3. Gộp 2 danh sách lại và loại bỏ ID trùng lặp trên RAM (cực kỳ nhẹ)
+            var contactIds = sentToIds.Union(receivedFromIds).Distinct().ToList();
+
+            if (!contactIds.Any())
+            {
+                return new List<ApplicationUser>();
+            }
+
+            // 4. Lấy ra thông tin User
+            return await _context.Users
+                .AsNoTracking()
+                .Where(u => contactIds.Contains(u.Id))
+                .ToListAsync();
+        }
     }
 }

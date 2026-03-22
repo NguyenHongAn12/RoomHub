@@ -9,6 +9,7 @@ namespace Application.Interfaces.Services
 
         // Search suggestions for autocomplete dropdown
         Task<IEnumerable<RoomSuggestionDto>> GetSuggestionsAsync(string keyword, string? province = null, int maxResults = 6);
+        Task<IEnumerable<RoomListViewModel>> GetAllRoomsAsync(string? currentUserId = null);
         Task<IEnumerable<RoomListViewModel>> GetMyRoomsAsync(string landlordId);
 
         // GET lookup data combined with viewmodels

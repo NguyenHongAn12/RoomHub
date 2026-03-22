@@ -1,9 +1,10 @@
+@using System.Security.Claims
 @model IEnumerable<Application.DTOs.RoomPosts.RoomListViewModel>
 @{
     ViewData["Title"] = "Property Marketplace";
-    var searchQuery = ViewBag.SearchQuery as string;
-    var province = ViewBag.Province as string;
-    bool isSearching = !string.IsNullOrWhiteSpace(searchQuery) || !string.IsNullOrWhiteSpace(province);
+    // Lấy thông tin user hiện tại để check logic ẩn/hiện nút tim
+    var currentUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+    var isOwner = User.IsInRole("PropertyOwner"); // Thay "PropertyOwner" bằng tên role thực tế trong DB của bạn
 }
     <main class="max-w-7xl mx-auto px-4 py-4">
 
@@ -140,10 +141,23 @@
                     {
                         foreach (var item in Model)
                         {
-                            <div class="bg-white dark:bg-slate-900 rounded-xl shadow-sm flex flex-col md:flex-row overflow-hidden group cursor-pointer hover:shadow-md transition border border-slate-100">
-                                <div class="md:w-72 h-48 md:h-auto overflow-hidden relative">
-                                    <img alt="@item.Title" class="w-full h-full object-cover group-hover:scale-105 transition duration-500" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAIyzXG4Y1l8UHabQUlbLLXu93616OZ2rWZdqfHk7YoN9koc7TX0kCZ2eSt0qfkD4UwHBBmwWH8XeJ2Kec8weBQ7f9rb-IRzo3NstQ9rP0YtaTy1t37SQod0n354EM5LOQV6-u4YddEjWcow5DzBU5oiUvSdB6QK-WcDauq_n3jOy3R41-yBMXB_vRiy--1vTdA12NsxepsZj1r2VC0bBxKIs3ROL5V8_1FxU2EzCuyRJGZ2SoFQjoduY4NhOvKhX3djUfBS7Oo6JY" />
-                                    @{
+                            bool isMyPost = isOwner && item.LandlordId == currentUserId;
+
+                        <div class="bg-white dark:bg-slate-900 rounded-xl shadow-sm flex flex-col md:flex-row overflow-hidden group cursor-pointer hover:shadow-md transition border border-slate-100">
+                            <div class="md:w-72 h-48 md:h-auto overflow-hidden relative">
+                                <img alt="@item.Title" class="w-full h-full object-cover group-hover:scale-105 transition duration-500" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAIyzXG4Y1l8UHabQUlbLLXu93616OZ2rWZdqfHk7YoN9koc7TX0kCZ2eSt0qfkD4UwHBBmwWH8XeJ2Kec8weBQ7f9rb-IRzo3NstQ9rP0YtaTy1t37SQod0n354EM5LOQV6-u4YddEjWcow5DzBU5oiUvSdB6QK-WcDauq_n3jOy3R41-yBMXB_vRiy--1vTdA12NsxepsZj1r2VC0bBxKIs3ROL5V8_1FxU2EzCuyRJGZ2SoFQjoduY4NhOvKhX3djUfBS7Oo6JY" />
+            
+                                @if (!isMyPost && User.Identity.IsAuthenticated)
+                                {
+                                    <button class="btn-toggle-favorite absolute top-2 right-2 z-10 p-2 rounded-full bg-white/80 dark:bg-slate-800/80 backdrop-blur shadow hover:scale-110 transition flex items-center justify-center"
+                                            data-room-id="@item.Id">
+                                        <span class="material-symbols-outlined text-xl transition-colors duration-300"
+                                              style="@(item.IsFavorite ? "font-variation-settings: 'FILL' 1; color: #ef4444;" : "font-variation-settings: 'FILL' 0; color: #94a3b8;")">
+                                            favorite
+                                        </span>
+                                    </button>
+                                }
+                                @{
                                         var badgeClass = item.Status switch
                                         {
                                             Domain.Enums.RoomStatus.Active => "bg-success",
@@ -284,3 +298,7 @@
         </button>
     </div>
 
+@section Scripts {
+    @* Thêm asp-append-version="true" để ASP.NET tự động thêm mã băm, trình duyệt sẽ không bị cache file cũ *@
+    <script src="~/js/favorite.js" asp-append-version="true"></script>
+}
