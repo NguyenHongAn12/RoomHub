@@ -1,4 +1,4 @@
-﻿using Domain.Entities;
+using Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using System;
@@ -27,6 +27,7 @@ namespace Infrastructure.Persistence.Configurations
             builder.Property(u => u.TwoFactorEnabled).HasDefaultValue(false);
             builder.Property(u => u.LockoutEnabled).HasDefaultValue(true);
             builder.Property(u => u.AccessFailedCount).HasDefaultValue(0);
+            builder.Property(u => u.ReviewBlockedUntil).IsRequired(false);
         }
     }
 }

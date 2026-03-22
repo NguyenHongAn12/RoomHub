@@ -39,6 +39,10 @@ namespace Web.Controllers
                 var newReview = await _reviewService.AddReviewAsync(dto, userId);
                 return Ok(newReview);
             }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
             catch (Exception ex)
             {
                 return StatusCode(500, new { message = "An error occurred while adding the review.", details = ex.Message });

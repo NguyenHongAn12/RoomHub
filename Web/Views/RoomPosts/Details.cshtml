@@ -293,11 +293,12 @@
 
                                         <!-- Reply Form -->
                                         <div id="reply-form-@review.Id" class="hidden mt-3 flex items-center gap-2 bg-slate-50 dark:bg-slate-800/50 rounded-lg px-2 py-1.5 border border-slate-200 dark:border-slate-700 transition-all">
-                                            <input id="reply-input-@review.Id" class="bg-transparent border-none focus:ring-0 text-xs w-full p-1 h-8" placeholder="Viết câu trả lời..." type="text"/>
+                                            <input id="reply-input-@review.Id" oninput="document.getElementById('reply-error-@review.Id').classList.add('hidden')" class="bg-transparent border-none focus:ring-0 text-xs w-full p-1 h-8" placeholder="Viết câu trả lời..." type="text"/>
                                             <button onclick="submitReview(@Model.Id, @review.Id, 'reply-input-@review.Id')" class="text-primary disabled:opacity-50 p-1 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-full transition-colors flex items-center justify-center">
                                                 <span class="material-icons-outlined text-sm">send</span>
                                             </button>
                                         </div>
+                                        <p id="reply-error-@review.Id" class="text-[10px] text-red-500 mt-1 hidden px-2"></p>
                                     </div>
                                 </div>
                             }
@@ -314,11 +315,12 @@
                     @if(User.Identity?.IsAuthenticated == true)
                     {
                         <div class="mt-4 flex items-center gap-2 bg-slate-100 dark:bg-slate-800 rounded-lg px-3 py-2 border border-transparent focus-within:border-primary transition-all shadow-sm">
-                            <input id="main-comment-input" class="bg-transparent border-none focus:ring-0 text-sm w-full p-0" placeholder="Viết bình luận của bạn..." type="text"/>
+                            <input id="main-comment-input" oninput="document.getElementById('main-comment-error').classList.add('hidden')" class="bg-transparent border-none focus:ring-0 text-sm w-full p-0" placeholder="Viết bình luận của bạn..." type="text"/>
                             <button onclick="submitReview(@Model.Id, null, 'main-comment-input')" class="text-white bg-primary disabled:opacity-50 p-1.5 rounded-full hover:bg-orange-600 transition-colors shadow-sm flex items-center justify-center">
                                 <span class="material-icons-outlined text-sm">send</span>
                             </button>
                         </div>
+                        <p id="main-comment-error" class="text-xs text-red-500 mt-1.5 hidden px-1"></p>
                     }
                     else
                     {
@@ -393,9 +395,19 @@
         async function submitReview(roomId, parentId, inputId) {
             const input = document.getElementById(inputId);
             const content = input.value.trim();
+            const errorId = inputId === 'main-comment-input' ? 'main-comment-error' : 'reply-error-' + parentId;
+            const errorEl = document.getElementById(errorId);
+            
+            // Xóa thông báo lỗi cũ
+            if (errorEl) errorEl.classList.add('hidden');
             
             if (!content) {
-                alert("Vui lòng nhập nội dung bình luận");
+                if (errorEl) {
+                    errorEl.innerText = "Vui lòng nhập nội dung bình luận";
+                    errorEl.classList.remove('hidden');
+                } else {
+                    alert("Vui lòng nhập nội dung bình luận");
+                }
                 return;
             }
 
@@ -414,18 +426,27 @@
 
                 if (response.ok) {
                     input.value = '';
-                    // Reload to show new review
                     window.location.reload();
                 } else if (response.status === 401) {
                     alert('Vui lòng đăng nhập để bình luận!');
                     window.location.href = '/Identity/Account/Login?ReturnUrl=' + encodeURIComponent(window.location.pathname);
                 } else {
                     const error = await response.json();
-                    alert('Có lỗi xảy ra: ' + (error.message || 'Không thể đăng bình luận'));
+                    if (errorEl) {
+                        errorEl.innerText = error.message || 'Không thể đăng bình luận';
+                        errorEl.classList.remove('hidden');
+                    } else {
+                        alert('Có lỗi xảy ra: ' + (error.message || 'Không thể đăng bình luận'));
+                    }
                 }
             } catch (err) {
                 console.error(err);
-                alert('Có lỗi xảy ra, vui lòng thử lại sau');
+                if (errorEl) {
+                    errorEl.innerText = 'Có lỗi xảy ra, vui lòng thử lại sau';
+                    errorEl.classList.remove('hidden');
+                } else {
+                    alert('Có lỗi xảy ra, vui lòng thử lại sau');
+                }
             }
         }
     </script>
