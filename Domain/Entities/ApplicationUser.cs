@@ -23,6 +23,7 @@ namespace Domain.Entities
         public DateTime? UpdatedAt { get; set; }
         public bool IsDeleted { get; set; }
         public bool IsBanned { get; set; }
+        public DateTime? ReviewBlockedUntil { get; set; }
 
         // Navigation properties
         public virtual ICollection<Room> OwnedRooms { get; set; } = new List<Room>();

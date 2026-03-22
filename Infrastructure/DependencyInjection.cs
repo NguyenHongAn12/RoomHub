@@ -70,8 +70,10 @@ namespace Infrastructure
             services.AddScoped<IMessageService, MessageService>();
 
             services.AddScoped<IReviewRepository, ReviewRepository>();
+            services.AddScoped<IReviewViolationRepository, ReviewViolationRepository>();
             services.AddScoped<IReviewService, ReviewService>();
 
+            services.AddHttpClient<IGeminiModerationService, GeminiModerationService>();
 
             return services;
         }
