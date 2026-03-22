@@ -14,5 +14,8 @@ namespace Application.Interfaces.Repositories
         // Lookup data helpers
         Task<IEnumerable<Floor>> GetFloorsByLandlordIdAsync(string landlordId);
         Task<IEnumerable<Amenity>> GetAllAmenitiesAsync();
+
+        // Search & Filter
+        Task<IEnumerable<Room>> SearchAsync(string? keyword, string? province, Domain.Enums.RoomType? roomType = null);
     }
 }

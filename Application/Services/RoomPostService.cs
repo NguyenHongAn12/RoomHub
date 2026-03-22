@@ -16,9 +16,22 @@ namespace Application.Services
             _cloudinaryService = cloudinaryService;
         }
 
-        public async Task<IEnumerable<RoomListViewModel>> GetAllRoomsAsync()
+        public async Task<IEnumerable<RoomListViewModel>> GetAllRoomsAsync(string? keyword = null, string? province = null, Domain.Enums.RoomType? roomType = null)
         {
-            var rooms = await _repository.GetAllActiveAsync();
+            // Nếu không có filter → dùng GetAllActiveAsync() như cũ (không breaking change)
+            // Nếu có filter → dùng SearchAsync() để query DB có điều kiện
+            IEnumerable<Room> rooms;
+
+            bool hasFilter = !string.IsNullOrWhiteSpace(keyword) || !string.IsNullOrWhiteSpace(province) || roomType.HasValue;
+            if (hasFilter)
+            {
+                rooms = await _repository.SearchAsync(keyword, province, roomType);
+            }
+            else
+            {
+                rooms = await _repository.GetAllActiveAsync();
+            }
+
             return rooms.Select(r => new RoomListViewModel
             {
                 Id = r.Id,
@@ -31,6 +44,30 @@ namespace Application.Services
                 RoomNumber = r.RoomNumber,
                 RoomType = r.RoomType,
                 AmenityCount = r.RoomAmenities.Count
+            });
+        }
+
+        public async Task<IEnumerable<RoomSuggestionDto>> GetSuggestionsAsync(string keyword, string? province = null, int maxResults = 6)
+        {
+            if (string.IsNullOrWhiteSpace(keyword)) return Enumerable.Empty<RoomSuggestionDto>();
+
+            var rooms = await _repository.SearchAsync(keyword, province);
+
+            return rooms.Take(maxResults).Select(r =>
+            {
+                var mainPhoto = r.RoomPhotos?.FirstOrDefault(p => p.IsMain)?.Url
+                                ?? r.RoomPhotos?.OrderBy(p => p.DisplayOrder).FirstOrDefault()?.Url
+                                ?? "https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?w=400&q=70";
+
+                return new RoomSuggestionDto
+                {
+                    Id = r.Id,
+                    Title = r.Title,
+                    BasePrice = r.BasePrice,
+                    MainPhotoUrl = mainPhoto,
+                    Address = r.Floor?.Building?.Address ?? "Chưa cập nhật",
+                    RoomType = r.RoomType
+                };
             });
         }
 

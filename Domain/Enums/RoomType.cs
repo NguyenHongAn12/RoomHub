@@ -20,6 +20,8 @@ namespace Domain.Enums
         Shared,
         [Display(Name = "Căn hộ Duplex")]
         Duplex,
+        [Display(Name = "Nhà nguyên căn")]
+        WholeHouse,
         [Display(Name = "Khác")]
         Other
     }
