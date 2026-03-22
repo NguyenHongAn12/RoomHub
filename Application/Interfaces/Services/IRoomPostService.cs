@@ -4,6 +4,11 @@ namespace Application.Interfaces.Services
 {
     public interface IRoomPostService
     {
+        // Thêm optional params - các dev gọi GetAllRoomsAsync() vẫn hoạt động bình thường
+        Task<IEnumerable<RoomListViewModel>> GetAllRoomsAsync(string? keyword = null, string? province = null, Domain.Enums.RoomType? roomType = null);
+
+        // Search suggestions for autocomplete dropdown
+        Task<IEnumerable<RoomSuggestionDto>> GetSuggestionsAsync(string keyword, string? province = null, int maxResults = 6);
         Task<IEnumerable<RoomListViewModel>> GetAllRoomsAsync(string? currentUserId = null);
         Task<IEnumerable<RoomListViewModel>> GetMyRoomsAsync(string landlordId);
 

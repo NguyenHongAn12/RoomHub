@@ -85,5 +85,54 @@ namespace Infrastructure.Repositories
         {
             return await _context.Amenities.ToListAsync();
         }
+
+        /// <summary>
+        /// Tìm kiếm phòng theo từ khóa và/hoặc tỉnh thành từ DB thực sự.
+        /// Keyword: so khớp Title, Description, Building.Name, Building.Address.
+        /// Province: so khớp Building.Province hoặc Building.City.
+        /// </summary>
+        public async Task<IEnumerable<Room>> SearchAsync(string? keyword, string? province, Domain.Enums.RoomType? roomType = null)
+        {
+            var query = _context.Rooms
+                .Include(r => r.Floor)
+                    .ThenInclude(f => f.Building)
+                .Include(r => r.RoomAmenities)
+                    .ThenInclude(ra => ra.Amenity)
+                .Include(r => r.RoomPhotos)
+                .Where(r => !r.IsDeleted && r.Status == Domain.Enums.RoomStatus.Active)
+                .AsQueryable();
+
+            // Filter theo keyword với Accent-Insensitive (Tiếng Việt không dấu)
+            if (!string.IsNullOrWhiteSpace(keyword))
+            {
+                query = query.Where(r =>
+                    EF.Functions.Collate(r.Title, "SQL_Latin1_General_CP1_CI_AI").Contains(keyword) ||
+                    (r.Description != null && EF.Functions.Collate(r.Description, "SQL_Latin1_General_CP1_CI_AI").Contains(keyword)) ||
+                    EF.Functions.Collate(r.Floor.Building.Name, "SQL_Latin1_General_CP1_CI_AI").Contains(keyword) ||
+                    EF.Functions.Collate(r.Floor.Building.Address, "SQL_Latin1_General_CP1_CI_AI").Contains(keyword) ||
+                    EF.Functions.Collate(r.Floor.Building.District, "SQL_Latin1_General_CP1_CI_AI").Contains(keyword) ||
+                    EF.Functions.Collate(r.Floor.Building.Ward, "SQL_Latin1_General_CP1_CI_AI").Contains(keyword)
+                );
+            }
+
+            // Filter theo tỉnh/thành phố (Accent-Insensitive)
+            if (!string.IsNullOrWhiteSpace(province))
+            {
+                query = query.Where(r =>
+                    (r.Floor.Building.Province != null && EF.Functions.Collate(r.Floor.Building.Province, "SQL_Latin1_General_CP1_CI_AI").Contains(province)) ||
+                    EF.Functions.Collate(r.Floor.Building.City, "SQL_Latin1_General_CP1_CI_AI").Contains(province)
+                );
+            }
+
+            // Filter theo loại phòng
+            if (roomType.HasValue)
+            {
+                query = query.Where(r => r.RoomType == roomType.Value);
+            }
+
+            return await query
+                .OrderByDescending(r => r.CreatedAt)
+                .ToListAsync();
+        }
     }
 }
