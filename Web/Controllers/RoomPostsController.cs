@@ -27,7 +27,11 @@ namespace Web.Controllers
         [AllowAnonymous]
         public async Task<IActionResult> Index()
         {
-            var rooms = await _roomPostService.GetAllRoomsAsync();
+            string? currentUserId = User.Identity?.IsAuthenticated == true
+                ? User.FindFirstValue(ClaimTypes.NameIdentifier)
+                : null;
+
+            var rooms = await _roomPostService.GetAllRoomsAsync(currentUserId);
             return View(rooms);
         }
 

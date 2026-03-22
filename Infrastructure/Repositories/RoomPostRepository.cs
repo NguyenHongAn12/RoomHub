@@ -16,7 +16,8 @@ namespace Infrastructure.Repositories
 
         public async Task<IEnumerable<Room>> GetAllActiveAsync()
         {
-            return await _context.Rooms
+            return await _context.Rooms.AsNoTracking()  // Tăng tốc độ đọc dữ liệu
+        .AsSplitQuery()  // Tách truy vấn, chống giật lag và TimeOut
                 .Include(r => r.Floor)
                     .ThenInclude(f => f.Building)
                 .Include(r => r.RoomAmenities)

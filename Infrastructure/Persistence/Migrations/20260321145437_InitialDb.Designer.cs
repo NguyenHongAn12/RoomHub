@@ -4,6 +4,7 @@ using Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Infrastructure.Persistence.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260321145437_InitialDb")]
+    partial class InitialDb
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -170,9 +173,6 @@ namespace Infrastructure.Persistence.Migrations
                         .HasColumnType("bit")
                         .HasDefaultValue(false);
 
-                    b.Property<DateTime?>("ReviewBlockedUntil")
-                        .HasColumnType("datetime2");
-
                     b.Property<string>("RoleSpecificData")
                         .HasColumnType("nvarchar(max)");
 
@@ -211,8 +211,8 @@ namespace Infrastructure.Persistence.Migrations
                         {
                             Id = "test-user-id-123",
                             AccessFailedCount = 0,
-                            ConcurrencyStamp = "eed97ed5-8f4e-46b0-b75d-b2c275a47e68",
-                            CreatedAt = new DateTime(2026, 3, 22, 8, 50, 12, 600, DateTimeKind.Utc).AddTicks(5040),
+                            ConcurrencyStamp = "115ebf74-f8b7-4e9a-9796-b272d767816d",
+                            CreatedAt = new DateTime(2026, 3, 21, 14, 54, 36, 637, DateTimeKind.Utc).AddTicks(2812),
                             Email = "owner@roomhub.com",
                             EmailConfirmed = true,
                             FullName = "Chủ Trọ Test",
@@ -225,7 +225,7 @@ namespace Infrastructure.Persistence.Migrations
                             PasswordHash = "AQAAAAEAACcQAAAAE...",
                             PhoneNumber = "0123456789",
                             PhoneNumberConfirmed = false,
-                            SecurityStamp = "0fdafeca-6e68-4bd2-93fc-6bba907bb1f2",
+                            SecurityStamp = "e4c13468-864d-41f2-8c20-f414e77134c2",
                             TwoFactorEnabled = false,
                             UserName = "owner_test"
                         });
@@ -882,9 +882,6 @@ namespace Infrastructure.Persistence.Migrations
                     b.Property<string>("OwnerId")
                         .HasColumnType("nvarchar(450)");
 
-                    b.Property<int?>("ParentReviewId")
-                        .HasColumnType("int");
-
                     b.Property<byte?>("Rating")
                         .HasColumnType("tinyint");
 
@@ -903,9 +900,6 @@ namespace Infrastructure.Persistence.Migrations
                     b.HasIndex("OwnerId")
                         .HasDatabaseName("IX_Reviews_OwnerId");
 
-                    b.HasIndex("ParentReviewId")
-                        .HasDatabaseName("IX_Reviews_ParentReviewId");
-
                     b.HasIndex("RoomId")
                         .HasDatabaseName("IX_Reviews_RoomId");
 
@@ -915,35 +909,6 @@ namespace Infrastructure.Persistence.Migrations
                     b.HasIndex("TenantId");
 
                     b.ToTable("Reviews", (string)null);
-                });
-
-            modelBuilder.Entity("Domain.Entities.ReviewViolation", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("Content")
-                        .IsRequired()
-                        .HasMaxLength(1000)
-                        .HasColumnType("nvarchar(1000)");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("datetime2")
-                        .HasDefaultValueSql("GETUTCDATE()");
-
-                    b.Property<string>("UserId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(450)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("UserId");
-
-                    b.ToTable("ReviewViolations");
                 });
 
             modelBuilder.Entity("Domain.Entities.Room", b =>
@@ -1712,11 +1677,6 @@ namespace Infrastructure.Persistence.Migrations
                         .HasForeignKey("OwnerId")
                         .OnDelete(DeleteBehavior.NoAction);
 
-                    b.HasOne("Domain.Entities.Review", "ParentReview")
-                        .WithMany("Replies")
-                        .HasForeignKey("ParentReviewId")
-                        .OnDelete(DeleteBehavior.Restrict);
-
                     b.HasOne("Domain.Entities.Room", "Room")
                         .WithMany("Reviews")
                         .HasForeignKey("RoomId")
@@ -1735,24 +1695,11 @@ namespace Infrastructure.Persistence.Migrations
 
                     b.Navigation("Owner");
 
-                    b.Navigation("ParentReview");
-
                     b.Navigation("Room");
 
                     b.Navigation("Service");
 
                     b.Navigation("Tenant");
-                });
-
-            modelBuilder.Entity("Domain.Entities.ReviewViolation", b =>
-                {
-                    b.HasOne("Domain.Entities.ApplicationUser", "User")
-                        .WithMany()
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("Domain.Entities.Room", b =>
@@ -1997,11 +1944,6 @@ namespace Infrastructure.Persistence.Migrations
                     b.Navigation("InvoiceItems");
 
                     b.Navigation("Payments");
-                });
-
-            modelBuilder.Entity("Domain.Entities.Review", b =>
-                {
-                    b.Navigation("Replies");
                 });
 
             modelBuilder.Entity("Domain.Entities.Room", b =>
